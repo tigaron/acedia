@@ -9,20 +9,26 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 
+const getAllServers = async (profileId: string) => {
+  const servers = await db.server.findMany({
+    where: {
+      members: {
+        some: {
+          profileId,
+        },
+      },
+    },
+  });
+
+  return servers;
+};
+
 export const NavigationSidebar = async () => {
   const profile = await currentProfile();
 
   if (!profile) return redirectToSignIn();
 
-  const servers = await db.server.findMany({
-    where: {
-      members: {
-        some: {
-          profileId: profile.id,
-        },
-      },
-    },
-  });
+  const servers = await getAllServers(profile.id);
 
   return (
     <div className="space-y-4 flex flex-col items-center h-full text-primary w-full dark:bg-[#1E1F22] bg-[#E3E5E8] py-3">

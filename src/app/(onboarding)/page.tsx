@@ -5,18 +5,24 @@ import { initialProfile } from '@/lib/initial-profile';
 
 import { CreateServerModal } from '@/components/modals/create-server';
 
-const OnBoardingPage = async () => {
-  const profile = await initialProfile();
-
+const getAnyServer = async (profileId: string) => {
   const server = await db.server.findFirst({
     where: {
       members: {
         some: {
-          profileId: profile.id,
+          profileId,
         },
       },
     },
   });
+
+  return server;
+};
+
+const OnBoardingPage = async () => {
+  const profile = await initialProfile();
+
+  const server = await getAnyServer(profile.id);
 
   if (server) return redirect(`/servers/${server.id}`);
 

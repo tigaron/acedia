@@ -1,9 +1,9 @@
-import './globals.css';
-
-import type { Metadata } from 'next';
+import '@/app/globals.css';
 
 import { ClerkProvider } from '@clerk/nextjs';
 import { Open_Sans } from 'next/font/google';
+
+import type { Metadata } from 'next';
 
 import { cn } from '@/lib/utils';
 

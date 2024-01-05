@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 
 import { Channel, ChannelType, MemberRole, Server } from '@prisma/client';
 
+import { useModal } from '@/hooks/use-modal-store';
 import { cn } from '@/lib/utils';
 
 import { ActionTooltip } from '@/components/action-tooltip';
@@ -26,6 +27,8 @@ export const ServerChannel = ({
   server,
   role,
 }: ServerChannelProps) => {
+  const { onOpen } = useModal();
+
   const router = useRouter();
   const params = useParams();
 
@@ -53,7 +56,10 @@ export const ServerChannel = ({
             <Edit className="hidden group-hover:block w-4 h-4 text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 transition" />
           </ActionTooltip>
           <ActionTooltip label="Delete">
-            <Trash className="hidden group-hover:block w-4 h-4 text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 transition" />
+            <Trash
+              className="hidden group-hover:block w-4 h-4 text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 transition"
+              onClick={() => onOpen('deleteChannel', { server, channel })}
+            />
           </ActionTooltip>
         </div>
       )}

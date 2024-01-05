@@ -1,7 +1,9 @@
 'use client';
 
+import axios from 'axios';
 import { FileIcon, X } from 'lucide-react';
 import Image from 'next/image';
+import { useState } from 'react';
 
 import { UploadDropzone } from '@/lib/uploadthing';
 
@@ -13,6 +15,22 @@ interface FileUploadProps {
 
 export const FileUpload = ({ onChange, value, endpoint }: FileUploadProps) => {
   const fileType = value?.split('.').pop();
+  const fileId = value?.split('/').pop();
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onDelete = async () => {
+    try {
+      setIsLoading(true);
+
+      await axios.delete(`/api/uploadthing/${fileId}`);
+      onChange('');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (value && fileType !== 'pdf') {
     return (
@@ -25,8 +43,9 @@ export const FileUpload = ({ onChange, value, endpoint }: FileUploadProps) => {
         />
         <button
           className="bg-rose-500 text-white p-1 rounded-full absolute top-0 right-0 shadow-sm"
-          onClick={() => onChange('')}
+          onClick={onDelete}
           type="button"
+          disabled={isLoading}
         >
           <X className="h-4 w-4" />
         </button>
@@ -47,9 +66,10 @@ export const FileUpload = ({ onChange, value, endpoint }: FileUploadProps) => {
           {value}
         </a>
         <button
-          onClick={() => onChange('')}
+          onClick={onDelete}
           className="bg-rose-500 text-white p-1 rounded-full absolute -top-2 -right-2 shadow-sm"
           type="button"
+          disabled={isLoading}
         >
           <X className="h-4 w-4" />
         </button>

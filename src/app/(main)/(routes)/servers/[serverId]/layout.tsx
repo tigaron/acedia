@@ -31,7 +31,8 @@ const ServerIdLayout = async ({
 }) => {
   const profile = await currentProfile();
 
-  if (!profile) return redirectToSignIn();
+  if (!profile)
+    return redirectToSignIn({ returnBackUrl: `/servers/${params.serverId}` });
 
   const server = await getServer(params.serverId, profile.id);
 

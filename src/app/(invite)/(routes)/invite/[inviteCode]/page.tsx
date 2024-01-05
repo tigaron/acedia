@@ -42,7 +42,8 @@ const addMember = async (inviteCode: string, profileId: string) => {
 const InviteCodePage = async ({ params }: InviteCodePageProps) => {
   const profile = await currentProfile();
 
-  if (!profile) return redirectToSignIn();
+  if (!profile)
+    return redirectToSignIn({ returnBackUrl: `/invite/${params.inviteCode}` });
 
   if (!params.inviteCode) return redirect('/');
 

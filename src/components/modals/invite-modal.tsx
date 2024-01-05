@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { Check, Copy, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 
@@ -15,7 +16,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import axios from 'axios';
 
 export const InviteModal = () => {
   const [isCopied, setIsCopied] = useState(false);

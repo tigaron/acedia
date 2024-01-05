@@ -32,7 +32,7 @@ const formSchema = z.object({
     message: 'Server name is required.',
   }),
   imageUrl: z.string().url({
-    message: 'Image URL is required.',
+    message: 'Image is required.',
   }),
 });
 
@@ -97,6 +97,7 @@ export const InitialServerModal = () => {
                           onChange={field.onChange}
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />

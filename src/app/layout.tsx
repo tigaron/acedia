@@ -7,6 +7,7 @@ import { Open_Sans } from 'next/font/google';
 
 import { cn } from '@/lib/utils';
 
+import { ModalProvider } from '@/components/providers/modal-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 
 const font = Open_Sans({ subsets: ['latin'] });
@@ -31,6 +32,7 @@ export default function RootLayout({
             enableSystem={false}
             storageKey="acedia-theme"
           >
+            <ModalProvider />
             {children}
           </ThemeProvider>
         </body>

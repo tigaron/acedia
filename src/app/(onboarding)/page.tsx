@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { initialProfile } from '@/lib/initial-profile';
 
-import { CreateServerModal } from '@/components/modals/create-server';
+import { InitialServerModal } from '@/components/modals/initial-server-modal';
 
 const getAnyServer = async (profileId: string) => {
   const server = await db.server.findFirst({
@@ -26,7 +26,7 @@ const OnBoardingPage = async () => {
 
   if (server) return redirect(`/servers/${server.id}`);
 
-  return <CreateServerModal />;
+  return <InitialServerModal />;
 };
 
 export default OnBoardingPage;

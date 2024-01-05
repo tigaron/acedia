@@ -14,6 +14,11 @@ export async function PATCH(
 
     const { name, imageUrl } = await req.json();
 
+    if (!name) return new NextResponse('Name is required', { status: 400 });
+
+    if (!imageUrl)
+      return new NextResponse('Image URL is required', { status: 400 });
+
     const server = await db.server.update({
       where: { id: params.serverId, profileId: profile.id },
       data: {

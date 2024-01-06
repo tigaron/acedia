@@ -28,7 +28,7 @@ interface ServerHeaderProps {
   role?: MemberRole;
 }
 
-export const ServerHeader = ({ server, role }: ServerHeaderProps) => {
+export function ServerHeader({ server, role }: ServerHeaderProps) {
   const { onOpen } = useModal();
 
   const isAdmin = role === MemberRole.ADMIN;
@@ -102,4 +102,4 @@ export const ServerHeader = ({ server, role }: ServerHeaderProps) => {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
+}

@@ -2,7 +2,7 @@ import { auth } from '@clerk/nextjs';
 
 import { db } from '@/lib/db';
 
-export const currentProfile = async () => {
+export async function currentProfile() {
   const { userId } = auth();
 
   if (!userId) return null;
@@ -14,4 +14,4 @@ export const currentProfile = async () => {
   });
 
   return profile;
-};
+}

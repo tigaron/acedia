@@ -49,7 +49,7 @@ const formSchema = z.object({
   type: z.nativeEnum(ChannelType),
 });
 
-export const EditChannelModal = () => {
+export function EditChannelModal() {
   const { isOpen, onClose, type, data } = useModal();
 
   const isModalOpen = isOpen && type === 'editChannel';
@@ -174,4 +174,4 @@ export const EditChannelModal = () => {
       </DialogContent>
     </Dialog>
   );
-};
+}

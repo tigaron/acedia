@@ -6,7 +6,7 @@ import { useModal } from '@/hooks/use-modal-store';
 
 import { ActionTooltip } from '@/components/action-tooltip';
 
-export const NavigationAction = () => {
+export function NavigationAction() {
   const { onOpen } = useModal();
 
   return (
@@ -26,4 +26,4 @@ export const NavigationAction = () => {
       </ActionTooltip>
     </div>
   );
-};
+}

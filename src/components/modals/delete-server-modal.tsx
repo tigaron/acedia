@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-export const DeleteServerModal = () => {
+export function DeleteServerModal() {
   const { isOpen, onClose, type, data } = useModal();
 
   const isModalOpen = isOpen && type === 'deleteServer';
@@ -76,4 +76,4 @@ export const DeleteServerModal = () => {
       </DialogContent>
     </Dialog>
   );
-};
+}

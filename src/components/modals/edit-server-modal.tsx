@@ -38,7 +38,7 @@ const formSchema = z.object({
   }),
 });
 
-export const EditServerModal = () => {
+export function EditServerModal() {
   const { isOpen, onClose, type, data } = useModal();
 
   const isModalOpen = isOpen && type === 'editServer';
@@ -146,4 +146,4 @@ export const EditServerModal = () => {
       </DialogContent>
     </Dialog>
   );
-};
+}

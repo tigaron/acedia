@@ -17,13 +17,13 @@ interface ServerSectionProps {
   server?: ServerWithMembersWithProfiles;
 }
 
-export const ServerSection = ({
+export function ServerSection({
   label,
   role,
   sectionType,
   channelType,
   server,
-}: ServerSectionProps) => {
+}: ServerSectionProps) {
   const { onOpen } = useModal();
 
   return (
@@ -53,4 +53,4 @@ export const ServerSection = ({
       )}
     </div>
   );
-};
+}

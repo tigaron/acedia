@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export const InviteModal = () => {
+export function InviteModal() {
   const [isCopied, setIsCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -97,4 +97,4 @@ export const InviteModal = () => {
       </DialogContent>
     </Dialog>
   );
-};
+}

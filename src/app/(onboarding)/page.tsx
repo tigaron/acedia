@@ -5,7 +5,7 @@ import { initialProfile } from '@/lib/initial-profile';
 
 import { InitialServerModal } from '@/components/modals/initial-server-modal';
 
-const OnBoardingPage = async () => {
+export default async function OnBoardingPage() {
   const profile = await initialProfile();
 
   const server = await db.server.findFirst({
@@ -21,6 +21,4 @@ const OnBoardingPage = async () => {
   if (server) return redirect(`/servers/${server.id}`);
 
   return <InitialServerModal />;
-};
-
-export default OnBoardingPage;
+}

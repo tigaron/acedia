@@ -21,7 +21,7 @@ const roleIconMap = {
   [MemberRole.ADMIN]: <ShieldAlert className="h-4 w-4 text-rose-500" />,
 };
 
-export const ServerMember = ({ member, server }: ServerMemberProps) => {
+export function ServerMember({ member, server }: ServerMemberProps) {
   const params = useParams();
   const router = useRouter();
 
@@ -55,4 +55,4 @@ export const ServerMember = ({ member, server }: ServerMemberProps) => {
       <ActionTooltip label={member.role}>{roleIcon}</ActionTooltip>
     </button>
   );
-};
+}

@@ -8,7 +8,7 @@ interface InviteCodePageProps {
   params: { inviteCode: string };
 }
 
-const InviteCodePage = async ({ params }: InviteCodePageProps) => {
+export default async function InviteCodePage({ params }: InviteCodePageProps) {
   const profile = await currentProfile();
 
   if (!profile)
@@ -45,6 +45,4 @@ const InviteCodePage = async ({ params }: InviteCodePageProps) => {
   if (server) return redirect(`/servers/${server.id}`);
 
   return null;
-};
-
-export default InviteCodePage;
+}

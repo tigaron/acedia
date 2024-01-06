@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-export const LeaveServerModal = () => {
+export function LeaveServerModal() {
   const { isOpen, onClose, type, data } = useModal();
 
   const isModalOpen = isOpen && type === 'leaveServer';
@@ -71,4 +71,4 @@ export const LeaveServerModal = () => {
       </DialogContent>
     </Dialog>
   );
-};
+}

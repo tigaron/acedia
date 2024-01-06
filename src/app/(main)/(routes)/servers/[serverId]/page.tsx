@@ -10,7 +10,7 @@ interface ServerIdPageProps {
   };
 }
 
-const ServerIdPage = async ({ params }: ServerIdPageProps) => {
+export default async function ServerIdPage({ params }: ServerIdPageProps) {
   const profile = await currentProfile();
 
   if (!profile) return redirectToSignIn();
@@ -32,6 +32,4 @@ const ServerIdPage = async ({ params }: ServerIdPageProps) => {
   if (initialChannel?.name !== 'general') return null;
 
   return redirect(`/servers/${params.serverId}/channels/${initialChannel?.id}`);
-};
-
-export default ServerIdPage;
+}

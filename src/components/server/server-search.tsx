@@ -27,7 +27,7 @@ interface ServerSearchProps {
   }[];
 }
 
-export const ServerSearch = ({ data }: ServerSearchProps) => {
+export function ServerSearch({ data }: ServerSearchProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const router = useRouter();
@@ -106,4 +106,4 @@ export const ServerSearch = ({ data }: ServerSearchProps) => {
       </CommandDialog>
     </>
   );
-};
+}

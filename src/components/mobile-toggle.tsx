@@ -9,7 +9,7 @@ interface MobileToggleProps {
   serverId: string;
 }
 
-export const MobileToggle = ({ serverId }: MobileToggleProps) => {
+export function MobileToggle({ serverId }: MobileToggleProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -25,4 +25,4 @@ export const MobileToggle = ({ serverId }: MobileToggleProps) => {
       </SheetContent>
     </Sheet>
   );
-};
+}

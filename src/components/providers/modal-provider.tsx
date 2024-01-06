@@ -12,7 +12,7 @@ import { InviteModal } from '@/components/modals/invite-modal';
 import { LeaveServerModal } from '@/components/modals/leave-server-modal';
 import { MembersModal } from '@/components/modals/members-modal';
 
-export const ModalProvider = () => {
+export function ModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -34,4 +34,4 @@ export const ModalProvider = () => {
       <EditChannelModal />
     </>
   );
-};
+}

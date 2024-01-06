@@ -17,7 +17,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-export const DeleteChannelModal = () => {
+export function DeleteChannelModal() {
   const { isOpen, onClose, type, data } = useModal();
 
   const isModalOpen = isOpen && type === 'deleteChannel';
@@ -80,4 +80,4 @@ export const DeleteChannelModal = () => {
       </DialogContent>
     </Dialog>
   );
-};
+}

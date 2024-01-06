@@ -7,13 +7,13 @@ import { db } from '@/lib/db';
 
 import { ServerSidebar } from '@/components/server/server-sidebar';
 
-const ServerIdLayout = async ({
+export default async function ServerIdLayoutasync({
   children,
   params,
 }: {
   children: ReactNode;
   params: { serverId: string };
-}) => {
+}) {
   const profile = await currentProfile();
 
   if (!profile)
@@ -41,6 +41,4 @@ const ServerIdLayout = async ({
       <main className="h-full md:pl-60">{children}</main>
     </div>
   );
-};
-
-export default ServerIdLayout;
+}

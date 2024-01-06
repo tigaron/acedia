@@ -49,7 +49,7 @@ const roleIconMap = {
   [MemberRole.ADMIN]: <ShieldAlert className="w-4 h-4 ml-2 text-rose-500" />,
 };
 
-export const MembersModal = () => {
+export function MembersModal() {
   const [loadingId, setLoadingId] = useState('');
 
   const router = useRouter();
@@ -184,4 +184,4 @@ export const MembersModal = () => {
       </DialogContent>
     </Dialog>
   );
-};
+}

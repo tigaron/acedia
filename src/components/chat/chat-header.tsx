@@ -18,12 +18,12 @@ const channelIconMap = {
   [ChannelType.VIDEO]: Video,
 };
 
-export const ChatHeader = ({
+export function ChatHeader({
   serverId,
   name,
   type,
   imageUrl,
-}: ChatHeaderProps) => {
+}: ChatHeaderProps) {
   const Icon = type === 'conversation' ? Hash : channelIconMap[type];
 
   return (
@@ -38,4 +38,4 @@ export const ChatHeader = ({
       <p className="font-semibold text-md text-black dark:text-white">{name}</p>
     </div>
   );
-};
+}

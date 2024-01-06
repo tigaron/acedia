@@ -9,7 +9,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 
-export const NavigationSidebar = async () => {
+export async function NavigationSidebar() {
   const profile = await currentProfile();
 
   if (!profile) return redirectToSignIn();
@@ -52,4 +52,4 @@ export const NavigationSidebar = async () => {
       </div>
     </div>
   );
-};
+}

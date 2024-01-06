@@ -37,7 +37,7 @@ const formSchema = z.object({
   }),
 });
 
-export const CreateServerModal = () => {
+export function CreateServerModal() {
   const { isOpen, onClose, type } = useModal();
 
   const isModalOpen = isOpen && type === 'createServer';
@@ -137,4 +137,4 @@ export const CreateServerModal = () => {
       </DialogContent>
     </Dialog>
   );
-};
+}

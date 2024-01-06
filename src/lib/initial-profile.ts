@@ -2,7 +2,7 @@ import { currentUser, redirectToSignIn } from '@clerk/nextjs';
 
 import { db } from '@/lib/db';
 
-export const initialProfile = async () => {
+export async function initialProfile() {
   const user = await currentUser();
 
   if (!user) return redirectToSignIn();
@@ -25,4 +25,4 @@ export const initialProfile = async () => {
   });
 
   return newProfile;
-};
+}

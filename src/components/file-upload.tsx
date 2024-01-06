@@ -13,7 +13,7 @@ interface FileUploadProps {
   endpoint: 'serverImage' | 'messageFile';
 }
 
-export const FileUpload = ({ onChange, value, endpoint }: FileUploadProps) => {
+export function FileUpload({ onChange, value, endpoint }: FileUploadProps) {
   const fileType = value?.split('.').pop();
   const fileId = value?.split('/').pop();
 
@@ -90,4 +90,4 @@ export const FileUpload = ({ onChange, value, endpoint }: FileUploadProps) => {
       }}
     />
   );
-};
+}

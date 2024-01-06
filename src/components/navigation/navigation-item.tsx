@@ -38,10 +38,10 @@ export const NavigationItem = ({ id, imageUrl, name }: NavigationItemProps) => {
         >
           <Image
             fill
-            width={48}
-            height={48}
+            sizes="80px"
             src={imageUrl}
             alt="Server image"
+            className="object-cover"
           />
         </div>
       </button>

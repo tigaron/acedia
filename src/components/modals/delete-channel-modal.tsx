@@ -41,8 +41,8 @@ export const DeleteChannelModal = () => {
 
       await axios.delete(url);
 
-      onClose();
       router.refresh();
+      onClose();
       router.push(`/servers/${server?.id}`);
     } catch (error) {
       console.error(error);

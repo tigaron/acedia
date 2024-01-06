@@ -37,6 +37,8 @@ export const FileUpload = ({ onChange, value, endpoint }: FileUploadProps) => {
       <div className="relative h-20 w-20">
         <Image
           fill
+          width={80}
+          height={80}
           src={value}
           alt="Upload server image"
           className="rounded-full"

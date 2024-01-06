@@ -89,7 +89,7 @@ export const EditServerModal = () => {
             Edit Server
           </DialogTitle>
           <DialogDescription className="text-center text-zinc-500">
-            Customize your server's name and image.
+            Customize your server&apos;s name and image.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

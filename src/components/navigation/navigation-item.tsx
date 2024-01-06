@@ -38,6 +38,7 @@ export const NavigationItem = ({ id, imageUrl, name }: NavigationItemProps) => {
         >
           <Image
             fill
+            priority
             sizes="80px"
             src={imageUrl}
             alt="Server image"

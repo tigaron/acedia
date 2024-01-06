@@ -14,7 +14,7 @@ interface FileUploadProps {
 }
 
 export function FileUpload({ onChange, value, endpoint }: FileUploadProps) {
-  const fileType = value?.split('.').pop();
+  const fileType = value?.split('.').pop()?.toLowerCase();
   const fileId = value?.split('/').pop();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -40,7 +40,7 @@ export function FileUpload({ onChange, value, endpoint }: FileUploadProps) {
           priority
           sizes="80px"
           src={value}
-          alt="Upload server image"
+          alt="Upload image"
           className="rounded-full object-cover"
         />
         <button

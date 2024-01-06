@@ -9,6 +9,7 @@ import type { Metadata } from 'next';
 import { cn } from '@/lib/utils';
 
 import { ModalProvider } from '@/components/providers/modal-provider';
+import { SocketProvider } from '@/components/providers/socket-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 
 const font = Open_Sans({ subsets: ['latin'] });
@@ -34,8 +35,10 @@ export default function RootLayout({
             enableSystem={false}
             storageKey="acedia-theme"
           >
-            <ModalProvider />
-            {children}
+            <SocketProvider>
+              <ModalProvider />
+              {children}
+            </SocketProvider>
           </ThemeProvider>
         </body>
       </html>

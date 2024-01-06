@@ -60,10 +60,11 @@ export const DeleteChannelModal = () => {
           </DialogTitle>
           <DialogDescription className="text-center text-zinc-500">
             Are you sure you want to do this? <br />
+            Channel "
             <span className="font-semibold text-indigo-500">
               {channel?.name}
-            </span>{' '}
-            will be deleted permanently.
+            </span>
+            " will be deleted permanently.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="bg-gray-100 px-6 py-4">

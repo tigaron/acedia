@@ -1,6 +1,7 @@
 import '@/app/globals.css';
 
 import { ClerkProvider } from '@clerk/nextjs';
+import { Analytics } from '@vercel/analytics/react';
 import { Open_Sans } from 'next/font/google';
 
 import type { Metadata } from 'next';
@@ -26,6 +27,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body className={cn(font.className, 'bg-white dark:bg-[#313338]')}>
+          <Analytics />
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"

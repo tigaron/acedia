@@ -7,21 +7,6 @@ import { db } from '@/lib/db';
 
 import { ServerSidebar } from '@/components/server/server-sidebar';
 
-const getServer = async (serverId: string, profileId: string) => {
-  const server = await db.server.findUnique({
-    where: {
-      id: serverId,
-      members: {
-        some: {
-          profileId,
-        },
-      },
-    },
-  });
-
-  return server;
-};
-
 const ServerIdLayout = async ({
   children,
   params,
@@ -34,7 +19,16 @@ const ServerIdLayout = async ({
   if (!profile)
     return redirectToSignIn({ returnBackUrl: `/servers/${params.serverId}` });
 
-  const server = await getServer(params.serverId, profile.id);
+  const server = await db.server.findUnique({
+    where: {
+      id: params?.serverId,
+      members: {
+        some: {
+          profileId: profile.id,
+        },
+      },
+    },
+  });
 
   if (!server) return redirect('/');
 

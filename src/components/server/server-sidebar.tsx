@@ -2,8 +2,7 @@ import { redirectToSignIn } from '@clerk/nextjs';
 import { Hash, Mic, ShieldAlert, ShieldCheck, Video } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
-import { ServerWithMembersWithProfiles } from '@/types';
-import { Channel, ChannelType, MemberRole } from '@prisma/client';
+import { ChannelType, MemberRole } from '@prisma/client';
 
 import { currentProfile } from '@/lib/current-profile';
 import { db } from '@/lib/db';
@@ -34,13 +33,17 @@ const roleIconMap = {
   [MemberRole.ADMIN]: <ShieldAlert className="mr-2 w-4 h-4 text-rose-500" />,
 };
 
-const getServerChannels = async (serverId: string, profileId: string) => {
+export const ServerSidebar = async ({ serverId }: ServerSidebarProps) => {
+  const profile = await currentProfile();
+
+  if (!profile) return redirectToSignIn();
+
   const server = await db.server.findUnique({
     where: {
       id: serverId,
       members: {
         some: {
-          profileId,
+          profileId: profile.id,
         },
       },
     },
@@ -61,13 +64,8 @@ const getServerChannels = async (serverId: string, profileId: string) => {
     },
   });
 
-  return server;
-};
+  if (!server) return redirect('/');
 
-const filterServerEntity = (
-  server: ServerWithMembersWithProfiles & { channels: Channel[] },
-  profileId: string,
-) => {
   const textChannels = server.channels.filter(
     channel => channel.type === ChannelType.TEXT,
   );
@@ -81,33 +79,12 @@ const filterServerEntity = (
   );
 
   const members = server.members.filter(
-    member => member.profileId !== profileId,
+    member => member.profileId !== profile.id,
   );
 
   const role = server.members.find(
-    member => member.profileId === profileId,
+    member => member.profileId === profile.id,
   )?.role;
-
-  return {
-    textChannels,
-    audioChannels,
-    videoChannels,
-    members,
-    role,
-  };
-};
-
-export const ServerSidebar = async ({ serverId }: ServerSidebarProps) => {
-  const profile = await currentProfile();
-
-  if (!profile) return redirectToSignIn();
-
-  const server = await getServerChannels(serverId, profile.id);
-
-  if (!server) return redirect('/');
-
-  const { textChannels, audioChannels, videoChannels, members, role } =
-    filterServerEntity(server, profile.id);
 
   return (
     <div className="flex flex-col h-full text-primary w-full dark:bg-[#2B2D31] bg-[#F2F3F5]">

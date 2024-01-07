@@ -112,7 +112,7 @@ export function ChatItem({
     form.reset({
       content,
     });
-  }, [content]);
+  }, [form, content]);
 
   const isAdmin = currentMember.role === MemberRole.ADMIN;
   const isModerator = currentMember.role === MemberRole.MODERATOR;

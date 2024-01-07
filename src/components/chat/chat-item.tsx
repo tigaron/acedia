@@ -163,6 +163,7 @@ export function ChatItem({
                 alt={content}
                 fill
                 sizes="192px"
+                priority
                 className="object-cover"
               />
             </a>

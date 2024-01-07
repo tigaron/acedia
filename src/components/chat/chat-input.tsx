@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
-import { Plus } from 'lucide-react';
+import { Plus, SendHorizonal } from 'lucide-react';
 import qs from 'query-string';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -86,6 +86,14 @@ export function ChatInput({ apiUrl, query, name, type }: ChatInputProps) {
                         field.onChange(`${field.value}${emoji}`)
                       }
                     />
+                    <button
+                      type="button"
+                      className="ml-2 h-[24px] w-[24px] text-zinc-500 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition"
+                      disabled={isLoading}
+                      onClick={form.handleSubmit(onSubmit)}
+                    >
+                      <SendHorizonal />
+                    </button>
                   </div>
                 </div>
               </FormControl>

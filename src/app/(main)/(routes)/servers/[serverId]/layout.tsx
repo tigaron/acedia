@@ -1,9 +1,13 @@
-import { redirectToSignIn } from '@clerk/nextjs';
+import { auth, redirectToSignIn } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
 
+import { Server } from '@/graphql/gql/graphql';
+
+import { createApolloClient } from '@/lib/apollo-client';
 import { currentProfile } from '@/lib/current-profile';
-import { db } from '@/lib/db';
+
+import { GET_SERVER_BY_ID } from '@/graphql/queries/server/get-server-by-id';
 
 import { ServerSidebar } from '@/components/server/server-sidebar';
 
@@ -19,16 +23,21 @@ export default async function ServerIdLayoutasync({
   if (!profile)
     return redirectToSignIn({ returnBackUrl: `/servers/${params.serverId}` });
 
-  const server = await db.server.findUnique({
-    where: {
-      id: params?.serverId,
-      members: {
-        some: {
-          profileId: profile.id,
-        },
-      },
+  const { getToken } = auth();
+
+  const token = await getToken({ template: 'acedia' });
+
+  const client = createApolloClient(token);
+
+  const { data: serverQueryData } = await client.query({
+    query: GET_SERVER_BY_ID,
+    variables: {
+      id: params.serverId,
+      profileId: profile.id,
     },
   });
+
+  const server: Server = serverQueryData?.getServerById;
 
   if (!server) return redirect('/');
 

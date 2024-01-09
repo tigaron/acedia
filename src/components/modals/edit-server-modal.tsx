@@ -1,12 +1,16 @@
 'use client';
 
+import { useAuth } from '@clerk/nextjs';
 import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
+import { Profile } from '@/graphql/gql/graphql';
+
 import { useModal } from '@/hooks/use-modal-store';
+import { createApolloClient } from '@/lib/apollo-client';
 
 import { FileUpload } from '@/components/file-upload';
 import { Button } from '@/components/ui/button';
@@ -27,7 +31,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useEffect } from 'react';
+
+import { UPDATE_SERVER } from '@/graphql/mutations/server/update-server';
+import { GET_PROFILE_BY_USER_ID } from '@/graphql/queries/profile/get-profile-by-user-id';
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -46,6 +52,8 @@ export function EditServerModal() {
   const { server } = data;
 
   const router = useRouter();
+
+  const { userId, getToken } = useAuth();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -66,7 +74,29 @@ export function EditServerModal() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/servers/${server?.id}`, values);
+      const token = await getToken({ template: 'acedia' });
+
+      const client = createApolloClient(token);
+
+      const { data: profileQueryData } = await client.query({
+        query: GET_PROFILE_BY_USER_ID,
+        variables: {
+          userId,
+        },
+      });
+
+      const profile: Profile = profileQueryData?.getProfileByUserId;
+
+      await client.mutate({
+        mutation: UPDATE_SERVER,
+        variables: {
+          input: {
+            profileId: profile?.id,
+            serverId: server?.id,
+            ...values,
+          },
+        },
+      });
 
       form.reset();
       router.refresh();

@@ -10,8 +10,8 @@ import {
   Users,
 } from 'lucide-react';
 
+import { MemberRoleEnum } from '@/graphql/gql/graphql';
 import { ServerWithMembersWithProfiles } from '@/types';
-import { MemberRole } from '@prisma/client';
 
 import { useModal } from '@/hooks/use-modal-store';
 
@@ -25,14 +25,14 @@ import {
 
 interface ServerHeaderProps {
   server: ServerWithMembersWithProfiles;
-  role?: MemberRole;
+  role?: MemberRoleEnum;
 }
 
 export function ServerHeader({ server, role }: ServerHeaderProps) {
   const { onOpen } = useModal();
 
-  const isAdmin = role === MemberRole.ADMIN;
-  const isModerator = isAdmin || role === MemberRole.MODERATOR;
+  const isAdmin = role === MemberRoleEnum.Admin;
+  const isModerator = isAdmin || role === MemberRoleEnum.Moderator;
 
   return (
     <DropdownMenu>

@@ -3,7 +3,7 @@
 import { ShieldAlert, ShieldCheck } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 
-import { Member, MemberRole, Profile, Server } from '@prisma/client';
+import { Member, MemberRoleEnum, Profile, Server } from '@/graphql/gql/graphql';
 
 import { cn } from '@/lib/utils';
 
@@ -16,9 +16,11 @@ interface ServerMemberProps {
 }
 
 const roleIconMap = {
-  [MemberRole.GUEST]: null,
-  [MemberRole.MODERATOR]: <ShieldCheck className="h-4 w-4 text-indigo-500" />,
-  [MemberRole.ADMIN]: <ShieldAlert className="h-4 w-4 text-rose-500" />,
+  [MemberRoleEnum.Guest]: null,
+  [MemberRoleEnum.Moderator]: (
+    <ShieldCheck className="h-4 w-4 text-indigo-500" />
+  ),
+  [MemberRoleEnum.Admin]: <ShieldAlert className="h-4 w-4 text-rose-500" />,
 };
 
 export function ServerMember({ member, server }: ServerMemberProps) {

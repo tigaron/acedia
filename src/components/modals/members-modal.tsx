@@ -1,6 +1,6 @@
 'use client';
 
-import axios from 'axios';
+import { useAuth } from '@clerk/nextjs';
 import {
   Check,
   Gavel,
@@ -12,13 +12,13 @@ import {
   ShieldQuestion,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import qs from 'query-string';
 import { useState } from 'react';
 
+import { MemberRoleEnum, Profile, Server } from '@/graphql/gql/graphql';
 import { ServerWithMembersWithProfiles } from '@/types';
-import { MemberRole } from '@prisma/client';
 
 import { useModal } from '@/hooks/use-modal-store';
+import { createApolloClient } from '@/lib/apollo-client';
 
 import {
   Dialog,
@@ -41,12 +41,18 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { UserAvatar } from '@/components/user-avatar';
 
+import { DELETE_MEMBER } from '@/graphql/mutations/member/delete-member';
+import { UPDATE_MEMBER_ROLE } from '@/graphql/mutations/member/update-member-role';
+import { GET_PROFILE_BY_USER_ID } from '@/graphql/queries/profile/get-profile-by-user-id';
+
 const roleIconMap = {
-  [MemberRole.GUEST]: null,
-  [MemberRole.MODERATOR]: (
+  [MemberRoleEnum.Guest]: null,
+  [MemberRoleEnum.Moderator]: (
     <ShieldCheck className="w-4 h-4 ml-2 text-indigo-500" />
   ),
-  [MemberRole.ADMIN]: <ShieldAlert className="w-4 h-4 ml-2 text-rose-500" />,
+  [MemberRoleEnum.Admin]: (
+    <ShieldAlert className="w-4 h-4 ml-2 text-rose-500" />
+  ),
 };
 
 export function MembersModal() {
@@ -54,27 +60,48 @@ export function MembersModal() {
 
   const router = useRouter();
 
+  const { userId, getToken } = useAuth();
+
   const { isOpen, onOpen, onClose, type, data } = useModal();
 
   const isModalOpen = isOpen && type === 'members';
 
   const { server } = data as { server: ServerWithMembersWithProfiles };
 
-  const onRoleChange = async (memberId: string, role: MemberRole) => {
+  const onRoleChange = async (memberId: string, role: MemberRoleEnum) => {
     try {
       setLoadingId(memberId);
 
-      const url = qs.stringifyUrl({
-        url: `/api/members/${memberId}`,
-        query: {
-          serverId: server?.id,
+      const token = await getToken({ template: 'acedia' });
+
+      const client = createApolloClient(token);
+
+      const { data: profileQueryData } = await client.query({
+        query: GET_PROFILE_BY_USER_ID,
+        variables: {
+          userId,
         },
       });
 
-      const response = await axios.patch(url, { role });
+      const profile: Profile = profileQueryData?.getProfileByUserId;
+
+      const { data: serverMutationData } = await client.mutate({
+        mutation: UPDATE_MEMBER_ROLE,
+        variables: {
+          input: {
+            profileId: profile.id,
+            serverId: server?.id,
+            memberId,
+            role,
+          },
+        },
+      });
+
+      const serverWithNewMemberRole: Server =
+        serverMutationData?.updateMemberRole;
 
       router.refresh();
-      onOpen('members', { server: response.data });
+      onOpen('members', { server: serverWithNewMemberRole });
     } catch (error) {
       console.error(error);
     } finally {
@@ -86,17 +113,35 @@ export function MembersModal() {
     try {
       setLoadingId(memberId);
 
-      const url = qs.stringifyUrl({
-        url: `/api/members/${memberId}`,
-        query: {
-          serverId: server?.id,
+      const token = await getToken({ template: 'acedia' });
+
+      const client = createApolloClient(token);
+
+      const { data: profileQueryData } = await client.query({
+        query: GET_PROFILE_BY_USER_ID,
+        variables: {
+          userId,
         },
       });
 
-      const response = await axios.delete(url);
+      const profile: Profile = profileQueryData?.getProfileByUserId;
+
+      const { data: serverMutationData } = await client.mutate({
+        mutation: DELETE_MEMBER,
+        variables: {
+          input: {
+            profileId: profile.id,
+            serverId: server?.id,
+            memberId,
+          },
+        },
+      });
+
+      const serverWithoutDeletedMember: Server =
+        serverMutationData?.deleteMember;
 
       router.refresh();
-      onOpen('members', { server: response.data });
+      onOpen('members', { server: serverWithoutDeletedMember });
     } catch (error) {
       console.error(error);
     } finally {
@@ -143,23 +188,23 @@ export function MembersModal() {
                             <DropdownMenuSubContent>
                               <DropdownMenuItem
                                 onClick={() =>
-                                  onRoleChange(member.id, MemberRole.GUEST)
+                                  onRoleChange(member.id, MemberRoleEnum.Guest)
                                 }
                               >
                                 <Shield className="w-4 h-4 mr-2" />
                                 Guest
-                                {member.role === MemberRole.GUEST && (
+                                {member.role === MemberRoleEnum.Guest && (
                                   <Check className="w-4 h-4 ml-auto" />
                                 )}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() =>
-                                  onRoleChange(member.id, MemberRole.MODERATOR)
+                                  onRoleChange(member.id, MemberRoleEnum.Guest)
                                 }
                               >
                                 <ShieldCheck className="w-4 h-4 mr-2" />
                                 Moderator
-                                {member.role === MemberRole.MODERATOR && (
+                                {member.role === MemberRoleEnum.Moderator && (
                                   <Check className="w-4 h-4 ml-auto" />
                                 )}
                               </DropdownMenuItem>

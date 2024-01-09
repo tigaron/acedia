@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
+/* import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import { MessageWithMemberWithProfile } from '@/types';
@@ -81,3 +81,4 @@ export const useChatSocket = ({
     };
   }, [queryClient, addKey, queryKey, socket, updateKey]);
 };
+ */

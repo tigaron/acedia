@@ -2,8 +2,8 @@
 
 import { Plus, Settings } from 'lucide-react';
 
+import { ChannelTypeEnum, MemberRoleEnum } from '@/graphql/gql/graphql';
 import { ServerWithMembersWithProfiles } from '@/types';
-import { ChannelType, MemberRole } from '@prisma/client';
 
 import { useModal } from '@/hooks/use-modal-store';
 
@@ -11,9 +11,9 @@ import { ActionTooltip } from '@/components/action-tooltip';
 
 interface ServerSectionProps {
   label: string;
-  role?: MemberRole;
+  role?: MemberRoleEnum;
   sectionType: 'channels' | 'members';
-  channelType?: ChannelType;
+  channelType?: ChannelTypeEnum;
   server?: ServerWithMembersWithProfiles;
 }
 
@@ -31,7 +31,7 @@ export function ServerSection({
       <p className="text-xs uppercase font-semibold text-zinc-500 dark:text-zinc-400">
         {label}
       </p>
-      {role !== MemberRole.GUEST && sectionType === 'channels' && (
+      {role !== MemberRoleEnum.Guest && sectionType === 'channels' && (
         <ActionTooltip label="Create Channel" side="top">
           <button
             onClick={() => onOpen('createChannel', { channelType })}
@@ -41,7 +41,7 @@ export function ServerSection({
           </button>
         </ActionTooltip>
       )}
-      {role === MemberRole.ADMIN && sectionType === 'members' && (
+      {role === MemberRoleEnum.Admin && sectionType === 'members' && (
         <ActionTooltip label="Manage Members" side="top">
           <button
             onClick={() => onOpen('members', { server })}

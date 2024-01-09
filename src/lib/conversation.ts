@@ -1,4 +1,4 @@
-import { db } from '@/lib/db';
+/* import { db } from '@/lib/db';
 
 async function findConversation(memberOneId: string, memberTwoId: string) {
   try {
@@ -64,3 +64,4 @@ export async function fetchConversation(
 
   return await createNewConverstation(memberOneId, memberTwoId);
 }
+ */

@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { Member, MemberRole, Profile } from '@prisma/client';
+import { Member, MemberRoleEnum, Profile } from '@/graphql/gql/graphql';
 
 import { useModal } from '@/hooks/use-modal-store';
 import { cn } from '@/lib/utils';
@@ -37,9 +37,11 @@ interface ChatItemProps {
 }
 
 const roleIconMap = {
-  [MemberRole.GUEST]: null,
-  [MemberRole.MODERATOR]: <ShieldCheck className="h-4 w-4 text-indigo-500" />,
-  [MemberRole.ADMIN]: <ShieldAlert className="h-4 w-4 text-rose-500" />,
+  [MemberRoleEnum.Guest]: null,
+  [MemberRoleEnum.Moderator]: (
+    <ShieldCheck className="h-4 w-4 text-indigo-500" />
+  ),
+  [MemberRoleEnum.Admin]: <ShieldAlert className="h-4 w-4 text-rose-500" />,
 };
 
 const formSchema = z.object({
@@ -114,8 +116,8 @@ export function ChatItem({
     });
   }, [form, content]);
 
-  const isAdmin = currentMember.role === MemberRole.ADMIN;
-  const isModerator = currentMember.role === MemberRole.MODERATOR;
+  const isAdmin = currentMember.role === MemberRoleEnum.Admin;
+  const isModerator = currentMember.role === MemberRoleEnum.Moderator;
   const isMessageOwner = currentMember.id === member.id;
 
   const canDeleteMessage =

@@ -1,16 +1,17 @@
 'use client';
 
+import { useAuth } from '@clerk/nextjs';
 import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
 import { useParams, useRouter } from 'next/navigation';
-import qs from 'query-string';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+
 import * as z from 'zod';
 
-import { ChannelType } from '@prisma/client';
+import { ChannelTypeEnum, Profile } from '@/graphql/gql/graphql';
 
 import { useModal } from '@/hooks/use-modal-store';
+import { createApolloClient } from '@/lib/apollo-client';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -37,6 +38,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+import { CREATE_CHANNEL } from '@/graphql/mutations/channel/create-channel';
+import { GET_PROFILE_BY_USER_ID } from '@/graphql/queries/profile/get-profile-by-user-id';
+
 const formSchema = z.object({
   name: z
     .string()
@@ -46,7 +50,7 @@ const formSchema = z.object({
     .refine(name => name !== 'general', {
       message: 'Channel name cannot be "general".',
     }),
-  type: z.nativeEnum(ChannelType),
+  type: z.nativeEnum(ChannelTypeEnum),
 });
 
 export function CreateChannelModal() {
@@ -58,13 +62,15 @@ export function CreateChannelModal() {
 
   const router = useRouter();
 
+  const { userId, getToken } = useAuth();
+
   const { channelType } = data;
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      type: channelType || ChannelType.TEXT,
+      type: channelType || ChannelTypeEnum.Text,
     },
   });
 
@@ -72,7 +78,7 @@ export function CreateChannelModal() {
     if (channelType) {
       form.setValue('type', channelType);
     } else {
-      form.setValue('type', ChannelType.TEXT);
+      form.setValue('type', ChannelTypeEnum.Text);
     }
   }, [channelType, form]);
 
@@ -80,14 +86,30 @@ export function CreateChannelModal() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const url = qs.stringifyUrl({
-        url: '/api/channels',
-        query: {
-          serverId: params?.serverId,
+      const token = await getToken({ template: 'acedia' });
+
+      const client = createApolloClient(token);
+
+      const { data: profileQueryData } = await client.query({
+        query: GET_PROFILE_BY_USER_ID,
+        variables: {
+          userId,
         },
       });
 
-      await axios.post(url, values);
+      const profile: Profile = profileQueryData?.getProfileByUserId;
+
+      await client.mutate({
+        mutation: CREATE_CHANNEL,
+        variables: {
+          input: {
+            serverId: params?.serverId,
+            profileId: profile.id,
+            name: values.name,
+            type: values.type,
+          },
+        },
+      });
 
       form.reset();
       router.refresh();
@@ -150,7 +172,7 @@ export function CreateChannelModal() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Object.values(ChannelType).map(type => (
+                        {Object.values(ChannelTypeEnum).map(type => (
                           <SelectItem
                             key={type}
                             value={type}

@@ -3,7 +3,12 @@
 import { Edit, Hash, Lock, Mic, Trash, Video } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 
-import { Channel, ChannelType, MemberRole, Server } from '@prisma/client';
+import {
+  Channel,
+  ChannelTypeEnum,
+  MemberRoleEnum,
+  Server,
+} from '@/graphql/gql/graphql';
 
 import { ModalType, useModal } from '@/hooks/use-modal-store';
 import { cn } from '@/lib/utils';
@@ -13,13 +18,13 @@ import { ActionTooltip } from '@/components/action-tooltip';
 interface ServerChannelProps {
   channel: Channel;
   server: Server;
-  role?: MemberRole;
+  role?: MemberRoleEnum;
 }
 
 const iconMap = {
-  [ChannelType.TEXT]: Hash,
-  [ChannelType.AUDIO]: Mic,
-  [ChannelType.VIDEO]: Video,
+  [ChannelTypeEnum.Text]: Hash,
+  [ChannelTypeEnum.Audio]: Mic,
+  [ChannelTypeEnum.Video]: Video,
 };
 
 export function ServerChannel({ channel, server, role }: ServerChannelProps) {
@@ -57,7 +62,7 @@ export function ServerChannel({ channel, server, role }: ServerChannelProps) {
       >
         {channel.name}
       </p>
-      {channel.name !== 'general' && role !== MemberRole.GUEST && (
+      {channel.name !== 'general' && role !== MemberRoleEnum.Guest && (
         <div className="ml-auto flex items-center gap-x-2">
           <ActionTooltip label="Edit">
             <Edit

@@ -1,11 +1,11 @@
-'use client';
+/* 'use client';
 
 import { format } from 'date-fns';
 import { Loader2, ServerCrash } from 'lucide-react';
 import { Fragment } from 'react';
 
+import { Member } from '@/graphql/gql/graphql';
 import { MessageWithMemberWithProfile } from '@/types';
-import { Member } from '@prisma/client';
 
 import { useChatQuery } from '@/hooks/use-chat-query';
 
@@ -102,3 +102,4 @@ export function ChatMessages({
     </div>
   );
 }
+ */

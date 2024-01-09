@@ -1,6 +1,6 @@
 import { Hash, Mic, Video } from 'lucide-react';
 
-import { ChannelType } from '@prisma/client';
+import { ChannelTypeEnum } from '@/graphql/gql/graphql';
 
 import { MobileToggle } from '@/components/mobile-toggle';
 import { SocketIndicator } from '@/components/socket-indicator';
@@ -9,14 +9,14 @@ import { UserAvatar } from '@/components/user-avatar';
 interface ChatHeaderProps {
   serverId: string;
   name: string;
-  type: ChannelType | 'conversation';
+  type: ChannelTypeEnum | 'conversation';
   imageUrl?: string;
 }
 
 const channelIconMap = {
-  [ChannelType.TEXT]: Hash,
-  [ChannelType.AUDIO]: Mic,
-  [ChannelType.VIDEO]: Video,
+  [ChannelTypeEnum.Text]: Hash,
+  [ChannelTypeEnum.Audio]: Mic,
+  [ChannelTypeEnum.Video]: Video,
 };
 
 export function ChatHeader({

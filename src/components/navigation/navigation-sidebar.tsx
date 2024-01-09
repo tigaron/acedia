@@ -1,7 +1,10 @@
-import { UserButton, redirectToSignIn } from '@clerk/nextjs';
+import { UserButton, auth, redirectToSignIn } from '@clerk/nextjs';
 
+import { Server } from '@/graphql/gql/graphql';
+import { createApolloClient } from '@/lib/apollo-client';
 import { currentProfile } from '@/lib/current-profile';
-import { db } from '@/lib/db';
+
+import { GET_ALL_SERVERS_BY_PROFILE_ID } from '@/graphql/queries/server/get-all-servers-by-profile-id';
 
 import { NavigationAction } from '@/components/navigation/navigation-action';
 import { NavigationItem } from '@/components/navigation/navigation-item';
@@ -14,15 +17,20 @@ export async function NavigationSidebar() {
 
   if (!profile) return redirectToSignIn();
 
-  const servers = await db.server.findMany({
-    where: {
-      members: {
-        some: {
-          profileId: profile.id,
-        },
-      },
+  const { getToken } = auth();
+
+  const token = await getToken({ template: 'acedia' });
+
+  const client = createApolloClient(token);
+
+  const { data: serversQueryData } = await client.query({
+    query: GET_ALL_SERVERS_BY_PROFILE_ID,
+    variables: {
+      profileId: profile.id,
     },
   });
+
+  const servers: Server[] = serversQueryData?.getAllServersByProfileId;
 
   return (
     <div className="space-y-4 flex flex-col items-center h-full text-primary w-full dark:bg-[#1E1F22] bg-[#E3E5E8] py-3">

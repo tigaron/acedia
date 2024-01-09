@@ -1,10 +1,13 @@
 'use client';
 
-import axios from 'axios';
+import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { Profile } from '@/graphql/gql/graphql';
+
 import { useModal } from '@/hooks/use-modal-store';
+import { createApolloClient } from '@/lib/apollo-client';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,6 +19,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
+import { LEAVE_SERVER } from '@/graphql/mutations/server/leave-server';
+import { GET_PROFILE_BY_USER_ID } from '@/graphql/queries/profile/get-profile-by-user-id';
+
 export function LeaveServerModal() {
   const { isOpen, onClose, type, data } = useModal();
 
@@ -25,13 +31,35 @@ export function LeaveServerModal() {
 
   const router = useRouter();
 
+  const { userId, getToken } = useAuth();
+
   const { server } = data;
 
   const onConfirm = async () => {
     try {
       setIsLoading(true);
+      const token = await getToken({ template: 'acedia' });
 
-      await axios.patch(`/api/servers/${server?.id}/leave`);
+      const client = createApolloClient(token);
+
+      const { data: profileQueryData } = await client.query({
+        query: GET_PROFILE_BY_USER_ID,
+        variables: {
+          userId,
+        },
+      });
+
+      const profile: Profile = profileQueryData?.getProfileByUserId;
+
+      await client.mutate({
+        mutation: LEAVE_SERVER,
+        variables: {
+          input: {
+            profileId: profile?.id,
+            serverId: server?.id,
+          },
+        },
+      });
 
       onClose();
       router.refresh();

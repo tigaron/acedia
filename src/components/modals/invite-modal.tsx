@@ -1,11 +1,14 @@
 'use client';
 
-import axios from 'axios';
+import { useAuth } from '@clerk/nextjs';
 import { Check, Copy, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 
+import { Profile, Server } from '@/graphql/gql/graphql';
+
 import { useModal } from '@/hooks/use-modal-store';
 import { useOrigin } from '@/hooks/use-origin';
+import { createApolloClient } from '@/lib/apollo-client';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +20,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+import { CREATE_INVITE_CODE } from '@/graphql/mutations/server/create-invite-code';
+import { GET_PROFILE_BY_USER_ID } from '@/graphql/queries/profile/get-profile-by-user-id';
+
 export function InviteModal() {
   const [isCopied, setIsCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,6 +32,8 @@ export function InviteModal() {
   const isModalOpen = isOpen && type === 'invite';
 
   const { server } = data;
+
+  const { userId, getToken } = useAuth();
 
   const origin = useOrigin();
 
@@ -43,12 +51,32 @@ export function InviteModal() {
   const onNewUrl = async () => {
     try {
       setIsLoading(true);
+      const token = await getToken({ template: 'acedia' });
 
-      const response = await axios.patch(
-        `/api/servers/${server?.id}/invite-code`,
-      );
+      const client = createApolloClient(token);
 
-      onOpen('invite', { server: response.data });
+      const { data: profileQueryData } = await client.query({
+        query: GET_PROFILE_BY_USER_ID,
+        variables: {
+          userId,
+        },
+      });
+
+      const profile: Profile = profileQueryData?.getProfileByUserId;
+
+      const { data: serverMutationData } = await client.mutate({
+        mutation: CREATE_INVITE_CODE,
+        variables: {
+          input: {
+            profileId: profile.id,
+            serverId: server?.id,
+          },
+        },
+      });
+
+      const serverWithNewCode: Server = serverMutationData?.createInviteCode;
+
+      onOpen('invite', { server: serverWithNewCode });
     } catch (error) {
       console.error(error);
     } finally {

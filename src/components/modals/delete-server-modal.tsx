@@ -1,10 +1,14 @@
 'use client';
 
+import { useAuth } from '@clerk/nextjs';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { Profile } from '@/graphql/gql/graphql';
+
 import { useModal } from '@/hooks/use-modal-store';
+import { createApolloClient } from '@/lib/apollo-client';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,6 +20,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
+import { DELETE_SERVER } from '@/graphql/mutations/server/delete-server';
+import { GET_PROFILE_BY_USER_ID } from '@/graphql/queries/profile/get-profile-by-user-id';
+
 export function DeleteServerModal() {
   const { isOpen, onClose, type, data } = useModal();
 
@@ -25,6 +32,8 @@ export function DeleteServerModal() {
 
   const router = useRouter();
 
+  const { userId, getToken } = useAuth();
+
   const { server } = data;
 
   const fileId = server?.imageUrl?.split('/').pop();
@@ -33,7 +42,28 @@ export function DeleteServerModal() {
     try {
       setIsLoading(true);
 
-      await axios.delete(`/api/servers/${server?.id}`);
+      const token = await getToken({ template: 'acedia' });
+
+      const client = createApolloClient(token);
+
+      const { data: profileQueryData } = await client.query({
+        query: GET_PROFILE_BY_USER_ID,
+        variables: {
+          userId,
+        },
+      });
+
+      const profile: Profile = profileQueryData?.getProfileByUserId;
+
+      await client.mutate({
+        mutation: DELETE_SERVER,
+        variables: {
+          input: {
+            profileId: profile?.id,
+            serverId: server?.id,
+          },
+        },
+      });
 
       await axios.delete(`/api/uploadthing/${fileId}`);
 

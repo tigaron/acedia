@@ -1,12 +1,17 @@
-import { redirectToSignIn } from '@clerk/nextjs';
+import { auth, redirectToSignIn } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 
+import { Channel, Member } from '@/graphql/gql/graphql';
+
+import { createApolloClient } from '@/lib/apollo-client';
 import { currentProfile } from '@/lib/current-profile';
-import { db } from '@/lib/db';
+
+import { GET_CHANNEL_BY_ID } from '@/graphql/queries/channel/get-channel-by-id';
+import { GET_MEMBER_BY_SERVER_ID } from '@/graphql/queries/member/get-member-by-server-id';
 
 import { ChatHeader } from '@/components/chat/chat-header';
 import { ChatInput } from '@/components/chat/chat-input';
-import { ChatMessages } from '@/components/chat/chat-messages';
+// import { ChatMessages } from '@/components/chat/chat-messages';
 
 interface ChannelIdPageProps {
   params: {
@@ -20,20 +25,32 @@ export default async function ChannelIdPage({ params }: ChannelIdPageProps) {
 
   if (!profile) return redirectToSignIn();
 
-  const channel = await db.channel.findUnique({
-    where: {
+  const { getToken } = auth();
+
+  const token = await getToken({ template: 'acedia' });
+
+  const client = createApolloClient(token);
+
+  const { data: channelQueryData } = await client.query({
+    query: GET_CHANNEL_BY_ID,
+    variables: {
       id: params.channelId,
     },
   });
 
+  const channel: Channel = channelQueryData.getChannelById;
+
   if (!channel) return redirect(`/servers/${params.serverId}`);
 
-  const member = await db.member.findFirst({
-    where: {
+  const { data: memberQueryData } = await client.query({
+    query: GET_MEMBER_BY_SERVER_ID,
+    variables: {
       serverId: params.serverId,
       profileId: profile.id,
     },
   });
+
+  const member: Member = memberQueryData.getMemberByServerId;
 
   if (!member) return redirect(`/servers/${params.serverId}`);
 
@@ -44,7 +61,7 @@ export default async function ChannelIdPage({ params }: ChannelIdPageProps) {
         name={channel.name}
         type={channel.type}
       />
-      <ChatMessages
+      {/* <ChatMessages
         member={member}
         name={channel.name}
         chatId={channel.id}
@@ -57,7 +74,7 @@ export default async function ChannelIdPage({ params }: ChannelIdPageProps) {
         }}
         paramKey="channelId"
         paramValue={channel.id}
-      />
+      /> */}
       <ChatInput
         name={channel.name}
         type="channel"

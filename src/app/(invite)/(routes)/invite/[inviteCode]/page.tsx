@@ -1,8 +1,13 @@
-import { redirectToSignIn } from '@clerk/nextjs';
+import { auth, redirectToSignIn } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 
+import { Server } from '@/graphql/gql/graphql';
+
+import { createApolloClient } from '@/lib/apollo-client';
 import { currentProfile } from '@/lib/current-profile';
-import { db } from '@/lib/db';
+
+import { CREATE_MEMBER } from '@/graphql/mutations/member/create-member';
+import { GET_SERVER_BY_INVITE_CODE } from '@/graphql/queries/server/get-server-by-invite-code';
 
 interface InviteCodePageProps {
   params: { inviteCode: string };
@@ -16,31 +21,35 @@ export default async function InviteCodePage({ params }: InviteCodePageProps) {
 
   if (!params.inviteCode) return redirect('/');
 
-  const existingServer = await db.server.findFirst({
-    where: {
+  const { getToken } = auth();
+
+  const token = await getToken({ template: 'acedia' });
+
+  const client = createApolloClient(token);
+
+  const { data: serverQueryData } = await client.query({
+    query: GET_SERVER_BY_INVITE_CODE,
+    variables: {
       inviteCode: params.inviteCode,
-      members: {
-        some: {
-          profileId: profile.id,
-        },
-      },
+      profileId: profile.id,
     },
   });
+
+  const existingServer: Server = serverQueryData?.serverByInviteCode;
 
   if (existingServer) return redirect(`/servers/${existingServer.id}`);
 
-  const server = await db.server.update({
-    where: {
-      inviteCode: params.inviteCode,
-    },
-    data: {
-      members: {
-        create: {
-          profileId: profile.id,
-        },
+  const { data: serverMutationData } = await client.mutate({
+    mutation: CREATE_MEMBER,
+    variables: {
+      input: {
+        inviteCode: params.inviteCode,
+        profileId: profile.id,
       },
     },
   });
+
+  const server: Server = serverMutationData?.createMember;
 
   if (server) return redirect(`/servers/${server.id}`);
 

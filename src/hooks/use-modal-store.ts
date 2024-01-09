@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { Channel, ChannelType, Server } from '@prisma/client';
+import { Channel, ChannelTypeEnum, Server } from '@/graphql/gql/graphql';
 
 export type ModalType =
   | 'createServer'
@@ -18,7 +18,7 @@ export type ModalType =
 interface ModalData {
   server?: Server;
   channel?: Channel;
-  channelType?: ChannelType;
+  channelType?: ChannelTypeEnum;
   apiUrl?: string;
   query?: Record<string, any>;
 }

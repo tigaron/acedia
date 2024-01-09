@@ -1,11 +1,13 @@
-import { redirectToSignIn } from '@clerk/nextjs';
+import { auth, redirectToSignIn } from '@clerk/nextjs';
 import { Hash, Mic, ShieldAlert, ShieldCheck, Video } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
-import { ChannelType, MemberRole } from '@prisma/client';
+import { ChannelTypeEnum, MemberRoleEnum, Server } from '@/graphql/gql/graphql';
 
+import { createApolloClient } from '@/lib/apollo-client';
 import { currentProfile } from '@/lib/current-profile';
-import { db } from '@/lib/db';
+
+import { GET_SERVER_WITH_CHANNEL_MEMBER_PROFILE_BY_ID } from '@/graphql/queries/server/get-server-with-channel-member-profile-by-id';
 
 import { ServerMember } from '@/components/server//server-member';
 import { ServerChannel } from '@/components/server/server-channel';
@@ -20,17 +22,19 @@ interface ServerSidebarProps {
 }
 
 const channelIconMap = {
-  [ChannelType.TEXT]: <Hash className="mr-2 w-4 h-4" />,
-  [ChannelType.AUDIO]: <Mic className="mr-2 w-4 h-4" />,
-  [ChannelType.VIDEO]: <Video className="mr-2 w-4 h-4" />,
+  [ChannelTypeEnum.Text]: <Hash className="mr-2 w-4 h-4" />,
+  [ChannelTypeEnum.Audio]: <Mic className="mr-2 w-4 h-4" />,
+  [ChannelTypeEnum.Video]: <Video className="mr-2 w-4 h-4" />,
 };
 
 const roleIconMap = {
-  [MemberRole.GUEST]: null,
-  [MemberRole.MODERATOR]: (
+  [MemberRoleEnum.Guest]: null,
+  [MemberRoleEnum.Moderator]: (
     <ShieldCheck className="mr-2 w-4 h-4 text-indigo-500" />
   ),
-  [MemberRole.ADMIN]: <ShieldAlert className="mr-2 w-4 h-4 text-rose-500" />,
+  [MemberRoleEnum.Admin]: (
+    <ShieldAlert className="mr-2 w-4 h-4 text-rose-500" />
+  ),
 };
 
 export async function ServerSidebar({ serverId }: ServerSidebarProps) {
@@ -38,44 +42,34 @@ export async function ServerSidebar({ serverId }: ServerSidebarProps) {
 
   if (!profile) return redirectToSignIn();
 
-  const server = await db.server.findUnique({
-    where: {
+  const { getToken } = auth();
+
+  const token = await getToken({ template: 'acedia' });
+
+  const client = createApolloClient(token);
+
+  const { data: serverQueryData } = await client.query({
+    query: GET_SERVER_WITH_CHANNEL_MEMBER_PROFILE_BY_ID,
+    variables: {
       id: serverId,
-      members: {
-        some: {
-          profileId: profile.id,
-        },
-      },
-    },
-    include: {
-      channels: {
-        orderBy: {
-          createdAt: 'asc',
-        },
-      },
-      members: {
-        include: {
-          profile: true,
-        },
-        orderBy: {
-          role: 'asc',
-        },
-      },
+      profileId: profile.id,
     },
   });
+
+  const server: Server = serverQueryData?.getServerWithChannelMemberProfileById;
 
   if (!server) return redirect('/');
 
   const textChannels = server.channels.filter(
-    channel => channel.type === ChannelType.TEXT,
+    channel => channel.type === ChannelTypeEnum.Text,
   );
 
   const audioChannels = server.channels.filter(
-    channel => channel.type === ChannelType.AUDIO,
+    channel => channel.type === ChannelTypeEnum.Audio,
   );
 
   const videoChannels = server.channels.filter(
-    channel => channel.type === ChannelType.VIDEO,
+    channel => channel.type === ChannelTypeEnum.Video,
   );
 
   const members = server.members.filter(
@@ -137,7 +131,7 @@ export async function ServerSidebar({ serverId }: ServerSidebarProps) {
           <div className="mb-2">
             <ServerSection
               sectionType="channels"
-              channelType={ChannelType.TEXT}
+              channelType={ChannelTypeEnum.Text}
               role={role}
               label="Text Channels"
             />
@@ -157,7 +151,7 @@ export async function ServerSidebar({ serverId }: ServerSidebarProps) {
           <div className="mb-2">
             <ServerSection
               sectionType="channels"
-              channelType={ChannelType.AUDIO}
+              channelType={ChannelTypeEnum.Audio}
               role={role}
               label="Voice Channels"
             />
@@ -177,7 +171,7 @@ export async function ServerSidebar({ serverId }: ServerSidebarProps) {
           <div className="mb-2">
             <ServerSection
               sectionType="channels"
-              channelType={ChannelType.VIDEO}
+              channelType={ChannelTypeEnum.Video}
               role={role}
               label="Voice Channels"
             />

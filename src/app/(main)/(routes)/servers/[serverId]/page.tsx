@@ -1,8 +1,12 @@
-import { redirectToSignIn } from '@clerk/nextjs';
+import { auth, redirectToSignIn } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 
+import { Server } from '@/graphql/gql/graphql';
+
+import { createApolloClient } from '@/lib/apollo-client';
 import { currentProfile } from '@/lib/current-profile';
-import { db } from '@/lib/db';
+
+import { GET_SERVER_WITH_CHANNEL_BY_ID } from '@/graphql/queries/server/get-server-with-channel-by-id';
 
 interface ServerIdPageProps {
   params: {
@@ -15,15 +19,21 @@ export default async function ServerIdPage({ params }: ServerIdPageProps) {
 
   if (!profile) return redirectToSignIn();
 
-  const server = await db.server.findUnique({
-    where: {
+  const { getToken } = auth();
+
+  const token = await getToken({ template: 'acedia' });
+
+  const client = createApolloClient(token);
+
+  const { data: serverQueryData } = await client.query({
+    query: GET_SERVER_WITH_CHANNEL_BY_ID,
+    variables: {
       id: params.serverId,
-      members: { some: { profileId: profile.id } },
-    },
-    include: {
-      channels: { where: { name: 'general' }, orderBy: { createdAt: 'asc' } },
+      profileId: profile.id,
     },
   });
+
+  const server: Server = serverQueryData?.getServerWithChannelById;
 
   if (!server) return redirect('/');
 

@@ -1,4 +1,4 @@
-import { NextApiRequest } from 'next';
+/* import { NextApiRequest } from 'next';
 
 import { currentProfilePages } from '@/lib/current-profile-pages';
 import { db } from '@/lib/db';
@@ -105,3 +105,4 @@ export default async function handler(
       .json({ error: (error as Error).message || 'Internal server error' });
   }
 }
+ */

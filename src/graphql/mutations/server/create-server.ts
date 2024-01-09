@@ -4,10 +4,6 @@ export const CREATE_SERVER = gql`
   mutation createServer($input: CreateServerDto!) {
     createServer(input: $input) {
       id
-      name
-      imageUrl
-      inviteCode
-      profileId
     }
   }
 `;

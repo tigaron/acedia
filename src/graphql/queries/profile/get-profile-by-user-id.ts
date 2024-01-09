@@ -4,10 +4,6 @@ export const GET_PROFILE_BY_USER_ID = gql`
   query getProfileByUserId($userId: String!) {
     getProfileByUserId(userId: $userId) {
       id
-      userId
-      name
-      email
-      imageUrl
     }
   }
 `;

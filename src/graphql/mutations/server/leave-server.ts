@@ -4,10 +4,6 @@ export const LEAVE_SERVER = gql`
   mutation leaveServer($input: LeaveServerDto!) {
     leaveServer(input: $input) {
       id
-      name
-      imageUrl
-      inviteCode
-      profileId
     }
   }
 `;

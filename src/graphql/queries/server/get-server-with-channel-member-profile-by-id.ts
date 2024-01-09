@@ -15,12 +15,8 @@ export const GET_SERVER_WITH_CHANNEL_MEMBER_PROFILE_BY_ID = gql`
         id
         role
         profileId
-        serverId
         profile {
-          id
-          userId
           name
-          email
           imageUrl
         }
       }
@@ -28,8 +24,6 @@ export const GET_SERVER_WITH_CHANNEL_MEMBER_PROFILE_BY_ID = gql`
         id
         name
         type
-        profileId
-        serverId
       }
     }
   }

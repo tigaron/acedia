@@ -6,8 +6,6 @@ export const GET_ALL_SERVERS_BY_PROFILE_ID = gql`
       id
       name
       imageUrl
-      inviteCode
-      profileId
     }
   }
 `;

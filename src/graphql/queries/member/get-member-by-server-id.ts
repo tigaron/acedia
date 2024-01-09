@@ -5,8 +5,6 @@ export const GET_MEMBER_BY_SERVER_ID = gql`
     getMemberByServerId(serverId: $serverId, profileId: $profileId) {
       id
       role
-      serverId
-      profileId
     }
   }
 `;

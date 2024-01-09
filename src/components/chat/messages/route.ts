@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+/* import { NextResponse } from 'next/server';
 
 import { Message } from '@prisma/client';
 
@@ -87,3 +87,4 @@ export async function GET(req: Request) {
     );
   }
 }
+ */

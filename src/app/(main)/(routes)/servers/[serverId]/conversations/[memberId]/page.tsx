@@ -1,9 +1,15 @@
-import { redirectToSignIn } from '@clerk/nextjs';
-// import { redirect } from 'next/navigation';
+import { auth, redirectToSignIn } from '@clerk/nextjs';
+import { redirect } from 'next/navigation';
 
-// import { ChatHeader } from '@/components/chat/chat-header';
-// import { fetchConversation } from '@/lib/conversation';
+import { Conversation, Member } from '@/graphql/gql/graphql';
+
+import { createApolloClient } from '@/lib/apollo-client';
 import { currentProfile } from '@/lib/current-profile';
+
+import { ChatHeader } from '@/components/chat/chat-header';
+
+import { FETCH_CONVERSATION } from '@/graphql/queries/conversation/fetch-conversation';
+import { GET_MEMBER_BY_SERVER_ID } from '@/graphql/queries/member/get-member-by-server-id';
 
 interface MemberIdPageProps {
   params: {
@@ -17,38 +23,49 @@ export default async function MemberIdPage({ params }: MemberIdPageProps) {
 
   if (!profile) return redirectToSignIn();
 
-  // const currentMember = await db.member.findFirst({
-  //   where: {
-  //     serverId: params.serverId,
-  //     profileId: profile.id,
-  //   },
-  //   include: {
-  //     profile: true,
-  //   },
-  // });
+  const { getToken } = auth();
 
-  // if (!currentMember) return redirect(`/servers/${params.serverId}`);
+  const token = await getToken({ template: 'acedia' });
 
-  // const conversation = await fetchConversation(
-  //   currentMember.id,
-  //   params.memberId,
-  // );
+  const client = createApolloClient(token);
 
-  // if (!conversation) return redirect(`/servers/${params.serverId}`);
+  const { data: memberQueryData } = await client.query({
+    query: GET_MEMBER_BY_SERVER_ID,
+    variables: {
+      serverId: params.serverId,
+      profileId: profile.id,
+    },
+  });
 
-  // const { memberOne, memberTwo } = conversation;
+  const currentMember: Member = memberQueryData?.getMemberByServerId;
 
-  // const otherMember =
-  //   memberOne.profileId === profile.id ? memberTwo : memberOne;
+  if (!currentMember) return redirect(`/servers/${params.serverId}`);
+
+  const { data: conversationQueryData } = await client.query({
+    query: FETCH_CONVERSATION,
+    variables: {
+      memberOneId: currentMember.id,
+      memberTwoId: params.memberId,
+    },
+  });
+
+  const conversation: Conversation = conversationQueryData?.fetchConversation;
+
+  if (!conversation) return redirect(`/servers/${params.serverId}`);
+
+  const { memberOne, memberTwo } = conversation;
+
+  const otherMember =
+    memberOne.profileId === profile.id ? memberTwo : memberOne;
 
   return (
     <div className="bg-white dark:bg-[#313338] flex flex-col h-full">
-      {/* <ChatHeader
+      <ChatHeader
         serverId={params.serverId}
         name={otherMember.profile.name}
         imageUrl={otherMember.profile.imageUrl}
         type="conversation"
-      /> */}
+      />
     </div>
   );
 }

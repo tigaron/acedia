@@ -17,6 +17,7 @@ export const GET_SERVER_WITH_CHANNEL_MEMBER_PROFILE_BY_ID = gql`
         profileId
         profile {
           name
+          email
           imageUrl
         }
       }

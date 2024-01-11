@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const LEAVE_SERVER = gql`
-  mutation leaveServer($input: LeaveServerDto!) {
-    leaveServer(input: $input) {
+  mutation leaveServer($id: String!) {
+    leaveServer(id: $id) {
       id
     }
   }

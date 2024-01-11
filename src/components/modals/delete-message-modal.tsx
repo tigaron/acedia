@@ -1,7 +1,5 @@
 'use client';
 
-import axios from 'axios';
-import qs from 'query-string';
 import { useState } from 'react';
 
 import { useModal } from '@/hooks/use-modal-store';
@@ -15,6 +13,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { DeleteMessageDto } from '@/graphql/gql/graphql';
+import { DELETE_MESSAGE } from '@/graphql/mutations/message/delete-message';
+import { createApolloClient } from '@/lib/apollo-client';
+import { useAuth } from '@clerk/nextjs';
 
 export function DeleteMessageModal() {
   const { isOpen, onClose, type, data } = useModal();
@@ -23,18 +25,31 @@ export function DeleteMessageModal() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const { apiUrl, query } = data;
+  const { query } = data;
+
+  const { getToken } = useAuth();
 
   const onConfirm = async () => {
     try {
       setIsLoading(true);
 
-      const url = qs.stringifyUrl({
-        url: apiUrl || '',
-        query,
-      });
+      const token = await getToken({ template: 'acedia' });
 
-      await axios.delete(url);
+      const client = createApolloClient(token);
+
+      const input: DeleteMessageDto = {
+        channelId: query?.channelId!,
+        memberId: query?.memberId!,
+        messageId: query?.messageId!,
+        serverId: query?.serverId!,
+      };
+
+      await client.mutate({
+        mutation: DELETE_MESSAGE,
+        variables: {
+          input,
+        },
+      });
 
       onClose();
     } catch (error) {

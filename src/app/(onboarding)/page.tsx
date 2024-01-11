@@ -1,7 +1,10 @@
 import { auth } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 
-import { Server } from '@/graphql/gql/graphql';
+import {
+  GetServerByProfileIdQueryVariables,
+  Server,
+} from '@/graphql/gql/graphql';
 
 import { createApolloClient } from '@/lib/apollo-client';
 import { initialProfile } from '@/lib/initial-profile';
@@ -19,11 +22,13 @@ export default async function OnBoardingPage() {
 
   const client = createApolloClient(token);
 
+  const variables: GetServerByProfileIdQueryVariables = {
+    profileId: profile.id,
+  };
+
   const { data: serverQueryData } = await client.query({
     query: GET_SERVER_BY_PROFILE_ID,
-    variables: {
-      profileId: profile.id,
-    },
+    variables,
   });
 
   const server: Server = serverQueryData?.getServerByProfileId;

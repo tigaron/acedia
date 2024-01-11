@@ -1,7 +1,12 @@
 import { auth, redirectToSignIn } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 
-import { Conversation, Member } from '@/graphql/gql/graphql';
+import {
+  Conversation,
+  FetchConversationQueryVariables,
+  GetMemberByServerIdQueryVariables,
+  Member,
+} from '@/graphql/gql/graphql';
 
 import { createApolloClient } from '@/lib/apollo-client';
 import { currentProfile } from '@/lib/current-profile';
@@ -29,24 +34,28 @@ export default async function MemberIdPage({ params }: MemberIdPageProps) {
 
   const client = createApolloClient(token);
 
+  const memberVariables: GetMemberByServerIdQueryVariables = {
+    serverId: params.serverId,
+    profileId: profile.id,
+  };
+
   const { data: memberQueryData } = await client.query({
     query: GET_MEMBER_BY_SERVER_ID,
-    variables: {
-      serverId: params.serverId,
-      profileId: profile.id,
-    },
+    variables: memberVariables,
   });
 
   const currentMember: Member = memberQueryData?.getMemberByServerId;
 
   if (!currentMember) return redirect(`/servers/${params.serverId}`);
 
+  const conversationVariables: FetchConversationQueryVariables = {
+    memberOneId: currentMember.id,
+    memberTwoId: params.memberId,
+  };
+
   const { data: conversationQueryData } = await client.query({
     query: FETCH_CONVERSATION,
-    variables: {
-      memberOneId: currentMember.id,
-      memberTwoId: params.memberId,
-    },
+    variables: conversationVariables,
   });
 
   const conversation: Conversation = conversationQueryData?.fetchConversation;

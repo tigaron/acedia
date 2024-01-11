@@ -2,7 +2,12 @@ import { auth, redirectToSignIn } from '@clerk/nextjs';
 import { Hash, Mic, ShieldAlert, ShieldCheck, Video } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
-import { ChannelTypeEnum, MemberRoleEnum, Server } from '@/graphql/gql/graphql';
+import {
+  ChannelTypeEnum,
+  GetServerWithChannelMemberProfileByIdQueryVariables,
+  MemberRoleEnum,
+  Server,
+} from '@/graphql/gql/graphql';
 
 import { createApolloClient } from '@/lib/apollo-client';
 import { currentProfile } from '@/lib/current-profile';
@@ -48,12 +53,14 @@ export async function ServerSidebar({ serverId }: ServerSidebarProps) {
 
   const client = createApolloClient(token);
 
+  const variables: GetServerWithChannelMemberProfileByIdQueryVariables = {
+    id: serverId,
+    profileId: profile.id,
+  };
+
   const { data: serverQueryData } = await client.query({
     query: GET_SERVER_WITH_CHANNEL_MEMBER_PROFILE_BY_ID,
-    variables: {
-      id: serverId,
-      profileId: profile.id,
-    },
+    variables,
   });
 
   const server: Server = serverQueryData?.getServerWithChannelMemberProfileById;

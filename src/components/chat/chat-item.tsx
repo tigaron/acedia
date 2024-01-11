@@ -1,15 +1,18 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
 import { Edit, FileIcon, ShieldAlert, ShieldCheck, Trash } from 'lucide-react';
 import Image from 'next/image';
-import qs from 'query-string';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { Member, MemberRoleEnum, Profile } from '@/graphql/gql/graphql';
+import {
+  Member,
+  MemberRoleEnum,
+  Profile,
+  UpdateMessageDto,
+} from '@/graphql/gql/graphql';
 
 import { useModal } from '@/hooks/use-modal-store';
 import { cn } from '@/lib/utils';
@@ -19,6 +22,9 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { UserAvatar } from '@/components/user-avatar';
+import { UPDATE_MESSAGE } from '@/graphql/mutations/message/update-message';
+import { createApolloClient } from '@/lib/apollo-client';
+import { useAuth } from '@clerk/nextjs';
 import { useParams, useRouter } from 'next/navigation';
 
 interface ChatItemProps {
@@ -32,8 +38,6 @@ interface ChatItemProps {
   deleted: boolean;
   currentMember: Member;
   isUpdated: boolean;
-  socketUrl: string;
-  socketQuery: Record<string, string>;
 }
 
 const roleIconMap = {
@@ -57,8 +61,6 @@ export function ChatItem({
   deleted,
   currentMember,
   isUpdated,
-  socketUrl,
-  socketQuery,
 }: ChatItemProps) {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -67,6 +69,8 @@ export function ChatItem({
   const params = useParams();
 
   const router = useRouter();
+
+  const { getToken } = useAuth();
 
   const onMemberClick = () => {
     if (member.id === currentMember.id) return;
@@ -95,12 +99,24 @@ export function ChatItem({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const url = qs.stringifyUrl({
-        url: `${socketUrl}/${id}`,
-        query: socketQuery,
-      });
+      const token = await getToken({ template: 'acedia' });
 
-      await axios.patch(url, values);
+      const client = createApolloClient(token);
+
+      const input: UpdateMessageDto = {
+        channelId: params?.channelId as string,
+        content: values.content,
+        memberId: currentMember.id,
+        messageId: id,
+        serverId: params?.serverId as string,
+      };
+
+      await client.mutate({
+        mutation: UPDATE_MESSAGE,
+        variables: {
+          input,
+        },
+      });
 
       form.reset();
     } catch (error) {
@@ -248,8 +264,12 @@ export function ChatItem({
             <Trash
               onClick={() =>
                 onOpen('deleteMessage', {
-                  apiUrl: `${socketUrl}/${id}`,
-                  query: socketQuery,
+                  query: {
+                    channelId: params?.channelId,
+                    messageId: id,
+                    serverId: params?.serverId,
+                    memberId: currentMember.id,
+                  },
                 })
               }
               className="cursor-pointer ml-auto w-4 h-4 text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition"

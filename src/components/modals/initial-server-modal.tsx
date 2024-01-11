@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { Profile } from '@/graphql/gql/graphql';
+import { CreateServerDto } from '@/graphql/gql/graphql';
 
 import { createApolloClient } from '@/lib/apollo-client';
 
@@ -32,7 +32,6 @@ import {
 import { Input } from '@/components/ui/input';
 
 import { CREATE_SERVER } from '@/graphql/mutations/server/create-server';
-import { GET_PROFILE_BY_USER_ID } from '@/graphql/queries/profile/get-profile-by-user-id';
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -48,7 +47,7 @@ export function InitialServerModal() {
 
   const router = useRouter();
 
-  const { userId, getToken } = useAuth();
+  const { getToken } = useAuth();
 
   useEffect(() => {
     setIsMounted(true);
@@ -70,23 +69,14 @@ export function InitialServerModal() {
 
       const client = createApolloClient(token);
 
-      const { data: profileQueryData } = await client.query({
-        query: GET_PROFILE_BY_USER_ID,
-        variables: {
-          userId,
-        },
-      });
-
-      const profile: Profile = profileQueryData?.getProfileByUserId;
+      const input: CreateServerDto = {
+        ...values,
+      };
 
       await client.mutate({
         mutation: CREATE_SERVER,
         variables: {
-          input: {
-            name: values.name,
-            imageUrl: values.imageUrl,
-            profileId: profile.id,
-          },
+          input,
         },
       });
 

@@ -14,8 +14,12 @@ import {
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { MemberRoleEnum, Profile, Server } from '@/graphql/gql/graphql';
-import { ServerWithMembersWithProfiles } from '@/types';
+import {
+  DeleteMemberDto,
+  MemberRoleEnum,
+  Server,
+  UpdateMemberRoleDto,
+} from '@/graphql/gql/graphql';
 
 import { useModal } from '@/hooks/use-modal-store';
 import { createApolloClient } from '@/lib/apollo-client';
@@ -43,7 +47,6 @@ import { UserAvatar } from '@/components/user-avatar';
 
 import { DELETE_MEMBER } from '@/graphql/mutations/member/delete-member';
 import { UPDATE_MEMBER_ROLE } from '@/graphql/mutations/member/update-member-role';
-import { GET_PROFILE_BY_USER_ID } from '@/graphql/queries/profile/get-profile-by-user-id';
 
 const roleIconMap = {
   [MemberRoleEnum.Guest]: null,
@@ -60,13 +63,13 @@ export function MembersModal() {
 
   const router = useRouter();
 
-  const { userId, getToken } = useAuth();
+  const { getToken } = useAuth();
 
   const { isOpen, onOpen, onClose, type, data } = useModal();
 
   const isModalOpen = isOpen && type === 'members';
 
-  const { server } = data as { server: ServerWithMembersWithProfiles };
+  const { server } = data as { server: Server };
 
   const onRoleChange = async (memberId: string, role: MemberRoleEnum) => {
     try {
@@ -76,25 +79,15 @@ export function MembersModal() {
 
       const client = createApolloClient(token);
 
-      const { data: profileQueryData } = await client.query({
-        query: GET_PROFILE_BY_USER_ID,
-        variables: {
-          userId,
-        },
-      });
-
-      const profile: Profile = profileQueryData?.getProfileByUserId;
+      const input: UpdateMemberRoleDto = {
+        memberId,
+        role,
+        serverId: server?.id!,
+      };
 
       const { data: serverMutationData } = await client.mutate({
         mutation: UPDATE_MEMBER_ROLE,
-        variables: {
-          input: {
-            profileId: profile.id,
-            serverId: server?.id,
-            memberId,
-            role,
-          },
-        },
+        variables: { input },
       });
 
       const serverWithNewMemberRole: Server =
@@ -117,24 +110,14 @@ export function MembersModal() {
 
       const client = createApolloClient(token);
 
-      const { data: profileQueryData } = await client.query({
-        query: GET_PROFILE_BY_USER_ID,
-        variables: {
-          userId,
-        },
-      });
-
-      const profile: Profile = profileQueryData?.getProfileByUserId;
+      const input: DeleteMemberDto = {
+        memberId,
+        serverId: server?.id!,
+      };
 
       const { data: serverMutationData } = await client.mutate({
         mutation: DELETE_MEMBER,
-        variables: {
-          input: {
-            profileId: profile.id,
-            serverId: server?.id,
-            memberId,
-          },
-        },
+        variables: { input },
       });
 
       const serverWithoutDeletedMember: Server =
@@ -199,7 +182,10 @@ export function MembersModal() {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() =>
-                                  onRoleChange(member.id, MemberRoleEnum.Guest)
+                                  onRoleChange(
+                                    member.id,
+                                    MemberRoleEnum.Moderator,
+                                  )
                                 }
                               >
                                 <ShieldCheck className="w-4 h-4 mr-2" />

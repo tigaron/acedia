@@ -10,8 +10,7 @@ import {
   Users,
 } from 'lucide-react';
 
-import { MemberRoleEnum } from '@/graphql/gql/graphql';
-import { ServerWithMembersWithProfiles } from '@/types';
+import { MemberRoleEnum, Server } from '@/graphql/gql/graphql';
 
 import { useModal } from '@/hooks/use-modal-store';
 
@@ -24,7 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 interface ServerHeaderProps {
-  server: ServerWithMembersWithProfiles;
+  server: Server;
   role?: MemberRoleEnum;
 }
 

@@ -1,6 +1,10 @@
 import { auth, currentUser, redirectToSignIn } from '@clerk/nextjs';
 
-import { Profile } from '@/graphql/gql/graphql';
+import {
+  CreateProfileDto,
+  GetProfileByUserIdQueryVariables,
+  Profile,
+} from '@/graphql/gql/graphql';
 
 import { createApolloClient } from '@/lib/apollo-client';
 
@@ -18,25 +22,29 @@ export async function initialProfile(): Promise<Profile> {
 
   const client = createApolloClient(token);
 
+  const variables: GetProfileByUserIdQueryVariables = {
+    userId: user.id,
+  };
+
   const { data: profileQueryData } = await client.query({
     query: GET_PROFILE_BY_USER_ID,
-    variables: { userId: user.id },
+    variables,
   });
 
   const profile: Profile = profileQueryData?.getProfileByUserId;
 
   if (profile) return profile;
 
+  const input: CreateProfileDto = {
+    userId: user.id,
+    name: `${user.firstName} ${user.lastName}`,
+    imageUrl: user.imageUrl,
+    email: user.emailAddresses[0].emailAddress,
+  };
+
   const { data: profileMutationData } = await client.mutate({
     mutation: CREATE_PROFILE,
-    variables: {
-      input: {
-        userId: user.id,
-        name: `${user.firstName} ${user.lastName}`,
-        imageUrl: user.imageUrl,
-        email: user.emailAddresses[0].emailAddress,
-      },
-    },
+    variables: { input },
   });
 
   const newProfile: Profile = profileMutationData?.createProfile;

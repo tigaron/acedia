@@ -4,7 +4,7 @@ import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { Profile } from '@/graphql/gql/graphql';
+import { LeaveServerMutationVariables } from '@/graphql/gql/graphql';
 
 import { useModal } from '@/hooks/use-modal-store';
 import { createApolloClient } from '@/lib/apollo-client';
@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/dialog';
 
 import { LEAVE_SERVER } from '@/graphql/mutations/server/leave-server';
-import { GET_PROFILE_BY_USER_ID } from '@/graphql/queries/profile/get-profile-by-user-id';
 
 export function LeaveServerModal() {
   const { isOpen, onClose, type, data } = useModal();
@@ -31,7 +30,7 @@ export function LeaveServerModal() {
 
   const router = useRouter();
 
-  const { userId, getToken } = useAuth();
+  const { getToken } = useAuth();
 
   const { server } = data;
 
@@ -42,23 +41,13 @@ export function LeaveServerModal() {
 
       const client = createApolloClient(token);
 
-      const { data: profileQueryData } = await client.query({
-        query: GET_PROFILE_BY_USER_ID,
-        variables: {
-          userId,
-        },
-      });
-
-      const profile: Profile = profileQueryData?.getProfileByUserId;
+      const variables: LeaveServerMutationVariables = {
+        id: server?.id!,
+      };
 
       await client.mutate({
         mutation: LEAVE_SERVER,
-        variables: {
-          input: {
-            profileId: profile?.id,
-            serverId: server?.id,
-          },
-        },
+        variables,
       });
 
       onClose();

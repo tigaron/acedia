@@ -4,7 +4,7 @@ import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { Profile } from '@/graphql/gql/graphql';
+import { DeleteChannelDto } from '@/graphql/gql/graphql';
 
 import { useModal } from '@/hooks/use-modal-store';
 import { createApolloClient } from '@/lib/apollo-client';
@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/dialog';
 
 import { DELETE_CHANNEL } from '@/graphql/mutations/channel/delete-channel';
-import { GET_PROFILE_BY_USER_ID } from '@/graphql/queries/profile/get-profile-by-user-id';
 
 export function DeleteChannelModal() {
   const { isOpen, onClose, type, data } = useModal();
@@ -31,7 +30,7 @@ export function DeleteChannelModal() {
 
   const router = useRouter();
 
-  const { userId, getToken } = useAuth();
+  const { getToken } = useAuth();
 
   const { server, channel } = data;
 
@@ -43,23 +42,15 @@ export function DeleteChannelModal() {
 
       const client = createApolloClient(token);
 
-      const { data: profileQueryData } = await client.query({
-        query: GET_PROFILE_BY_USER_ID,
-        variables: {
-          userId,
-        },
-      });
-
-      const profile: Profile = profileQueryData?.getProfileByUserId;
+      const input: DeleteChannelDto = {
+        channelId: channel?.id!,
+        serverId: server?.id!,
+      };
 
       await client.mutate({
         mutation: DELETE_CHANNEL,
         variables: {
-          input: {
-            channelId: channel?.id,
-            profileId: profile?.id,
-            serverId: server?.id,
-          },
+          input,
         },
       });
 

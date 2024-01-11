@@ -1,17 +1,15 @@
-/* 'use client';
+'use client';
 
 import { format } from 'date-fns';
 import { Loader2, ServerCrash } from 'lucide-react';
 import { Fragment } from 'react';
 
-import { Member } from '@/graphql/gql/graphql';
-import { MessageWithMemberWithProfile } from '@/types';
-
-import { useChatQuery } from '@/hooks/use-chat-query';
+import { Member, Message } from '@/graphql/gql/graphql';
 
 import { ChatItem } from '@/components/chat/chat-item';
 import { ChatWelcome } from '@/components/chat/chat-welcome';
-import { useChatSocket } from '@/hooks/use-chat-socket';
+import { useChatQuery } from '@/hooks/use-chat-query';
+// import { useChatSocket } from '@/hooks/use-chat-socket';
 
 const DATE_FORMAT = 'dd MMM yyyy, HH:mm';
 
@@ -19,9 +17,6 @@ interface ChatInputProps {
   name: string;
   member: Member;
   chatId: string;
-  apiUrl: string;
-  socketUrl: string;
-  socketQuery: Record<string, string>;
   paramKey: 'channelId' | 'conversationId';
   paramValue: string;
   type: 'channel' | 'conversation';
@@ -31,26 +26,22 @@ export function ChatMessages({
   name,
   member,
   chatId,
-  apiUrl,
-  socketUrl,
-  socketQuery,
   paramKey,
   paramValue,
   type,
 }: ChatInputProps) {
   const queryKey = `chat:${chatId}`;
-  const addKey = `chat:${chatId}:messages`;
-  const updateKey = `chat:${chatId}:messages:update`;
+  // const addKey = `chat:${chatId}:messages`;
+  // const updateKey = `chat:${chatId}:messages:update`;
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({
       queryKey,
-      apiUrl,
       paramKey,
       paramValue,
     });
 
-  useChatSocket({ queryKey, addKey, updateKey });
+  // useChatSocket({ queryKey, addKey, updateKey });
 
   if (status === 'pending') {
     return (
@@ -81,19 +72,17 @@ export function ChatMessages({
       <div className="flex flex-col-reverse mt-auto">
         {data?.pages?.map((group, i) => (
           <Fragment key={i}>
-            {group.items.map((message: MessageWithMemberWithProfile) => (
+            {group.messages.map((message: Message) => (
               <ChatItem
                 key={message.id}
                 id={message.id}
                 currentMember={member}
                 member={message.member}
                 content={message.content}
-                fileUrl={message.fileUrl}
+                fileUrl={message.fileUrl ?? null}
                 deleted={message.deleted}
                 timestamp={format(new Date(message.createdAt), DATE_FORMAT)}
                 isUpdated={message.updatedAt !== message.createdAt}
-                socketUrl={socketUrl}
-                socketQuery={socketQuery}
               />
             ))}
           </Fragment>
@@ -102,4 +91,3 @@ export function ChatMessages({
     </div>
   );
 }
- */

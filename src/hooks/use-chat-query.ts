@@ -1,38 +1,40 @@
+import { GetBatchMessagesQueryVariables } from '@/graphql/gql/graphql';
+import { GET_BATCH_MESSAGES } from '@/graphql/queries/message/get-batch-messages';
+import { createApolloClient } from '@/lib/apollo-client';
+import { useAuth } from '@clerk/nextjs';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import qs from 'query-string';
-
-import { useSocket } from '@/components/providers/socket-provider';
 
 interface ChatQueryProps {
   queryKey: string;
-  apiUrl: string;
   paramKey: 'channelId' | 'conversationId';
   paramValue: string;
 }
 
 export function useChatQuery({
   queryKey,
-  apiUrl,
   paramKey,
   paramValue,
 }: ChatQueryProps) {
-  const { isConnected } = useSocket();
+  const { getToken } = useAuth();
 
   const fetchMessages = async ({ pageParam = undefined }) => {
-    const url = qs.stringifyUrl(
-      {
-        url: apiUrl,
-        query: {
-          cursor: pageParam,
-          [paramKey]: paramValue,
-        },
-      },
-      { skipNull: true, skipEmptyString: true },
-    );
+    const token = await getToken({ template: 'acedia' });
 
-    const response = await fetch(url);
+    const client = createApolloClient(token);
 
-    return response.json();
+    const variables: GetBatchMessagesQueryVariables = {
+      cursor: pageParam,
+      channelId: paramValue,
+    };
+
+    const { data: messageQueryData } = await client.query({
+      query: GET_BATCH_MESSAGES,
+      variables,
+    });
+
+    const messages = messageQueryData?.getBatchMessages;
+
+    return messages;
   };
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
@@ -41,7 +43,7 @@ export function useChatQuery({
       queryFn: fetchMessages,
       getNextPageParam: lastpage => lastpage?.nextCursor,
       initialPageParam: undefined,
-      refetchInterval: /* isConnected ? false : */ 1000,
+      refetchInterval: 1000,
     });
 
   return {

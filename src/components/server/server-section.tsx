@@ -2,8 +2,7 @@
 
 import { Plus, Settings } from 'lucide-react';
 
-import { ChannelTypeEnum, MemberRoleEnum } from '@/graphql/gql/graphql';
-import { ServerWithMembersWithProfiles } from '@/types';
+import { ChannelTypeEnum, MemberRoleEnum, Server } from '@/graphql/gql/graphql';
 
 import { useModal } from '@/hooks/use-modal-store';
 
@@ -14,7 +13,7 @@ interface ServerSectionProps {
   role?: MemberRoleEnum;
   sectionType: 'channels' | 'members';
   channelType?: ChannelTypeEnum;
-  server?: ServerWithMembersWithProfiles;
+  server?: Server;
 }
 
 export function ServerSection({

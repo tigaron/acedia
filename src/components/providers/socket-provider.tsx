@@ -1,4 +1,4 @@
-'use client';
+/* 'use client';
 
 import {
   ReactNode,
@@ -57,3 +57,4 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     </SocketContext.Provider>
   );
 }
+ */

@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { Profile } from '@/graphql/gql/graphql';
+import { UpdateServerDto } from '@/graphql/gql/graphql';
 
 import { useModal } from '@/hooks/use-modal-store';
 import { createApolloClient } from '@/lib/apollo-client';
@@ -33,7 +33,6 @@ import {
 import { Input } from '@/components/ui/input';
 
 import { UPDATE_SERVER } from '@/graphql/mutations/server/update-server';
-import { GET_PROFILE_BY_USER_ID } from '@/graphql/queries/profile/get-profile-by-user-id';
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -53,7 +52,7 @@ export function EditServerModal() {
 
   const router = useRouter();
 
-  const { userId, getToken } = useAuth();
+  const { getToken } = useAuth();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -78,23 +77,15 @@ export function EditServerModal() {
 
       const client = createApolloClient(token);
 
-      const { data: profileQueryData } = await client.query({
-        query: GET_PROFILE_BY_USER_ID,
-        variables: {
-          userId,
-        },
-      });
-
-      const profile: Profile = profileQueryData?.getProfileByUserId;
+      const input: UpdateServerDto = {
+        serverId: server?.id!,
+        ...values,
+      };
 
       await client.mutate({
         mutation: UPDATE_SERVER,
         variables: {
-          input: {
-            profileId: profile?.id,
-            serverId: server?.id,
-            ...values,
-          },
+          input,
         },
       });
 

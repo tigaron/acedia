@@ -1,6 +1,9 @@
 import { UserButton, auth, redirectToSignIn } from '@clerk/nextjs';
 
-import { Server } from '@/graphql/gql/graphql';
+import {
+  GetAllServersByProfileIdQueryVariables,
+  Server,
+} from '@/graphql/gql/graphql';
 import { createApolloClient } from '@/lib/apollo-client';
 import { currentProfile } from '@/lib/current-profile';
 
@@ -23,11 +26,13 @@ export async function NavigationSidebar() {
 
   const client = createApolloClient(token);
 
+  const variables: GetAllServersByProfileIdQueryVariables = {
+    profileId: profile.id,
+  };
+
   const { data: serversQueryData } = await client.query({
     query: GET_ALL_SERVERS_BY_PROFILE_ID,
-    variables: {
-      profileId: profile.id,
-    },
+    variables,
   });
 
   const servers: Server[] = serversQueryData?.getAllServersByProfileId;

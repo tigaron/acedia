@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 
 import * as z from 'zod';
 
-import { ChannelTypeEnum, Profile } from '@/graphql/gql/graphql';
+import { ChannelTypeEnum, CreateChannelDto } from '@/graphql/gql/graphql';
 
 import { useModal } from '@/hooks/use-modal-store';
 import { createApolloClient } from '@/lib/apollo-client';
@@ -39,7 +39,6 @@ import {
 } from '@/components/ui/select';
 
 import { CREATE_CHANNEL } from '@/graphql/mutations/channel/create-channel';
-import { GET_PROFILE_BY_USER_ID } from '@/graphql/queries/profile/get-profile-by-user-id';
 
 const formSchema = z.object({
   name: z
@@ -62,7 +61,7 @@ export function CreateChannelModal() {
 
   const router = useRouter();
 
-  const { userId, getToken } = useAuth();
+  const { getToken } = useAuth();
 
   const { channelType } = data;
 
@@ -90,24 +89,16 @@ export function CreateChannelModal() {
 
       const client = createApolloClient(token);
 
-      const { data: profileQueryData } = await client.query({
-        query: GET_PROFILE_BY_USER_ID,
-        variables: {
-          userId,
-        },
-      });
-
-      const profile: Profile = profileQueryData?.getProfileByUserId;
+      const input: CreateChannelDto = {
+        serverId: params?.serverId as string,
+        name: values.name,
+        type: values.type,
+      };
 
       await client.mutate({
         mutation: CREATE_CHANNEL,
         variables: {
-          input: {
-            serverId: params?.serverId,
-            profileId: profile.id,
-            name: values.name,
-            type: values.type,
-          },
+          input,
         },
       });
 

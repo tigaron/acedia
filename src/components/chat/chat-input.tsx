@@ -1,9 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
 import { Plus, SendHorizonal } from 'lucide-react';
-import qs from 'query-string';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -12,10 +10,13 @@ import { useModal } from '@/hooks/use-modal-store';
 import { EmojiPicker } from '@/components/emoji-picker';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { CreateMessageDto } from '@/graphql/gql/graphql';
+import { CREATE_MESSAGE } from '@/graphql/mutations/message/create-message';
+import { createApolloClient } from '@/lib/apollo-client';
+import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
 interface ChatInputProps {
-  apiUrl: string;
   query: Record<string, any>;
   name: string;
   type: 'conversation' | 'channel';
@@ -25,10 +26,12 @@ const formSchema = z.object({
   content: z.string().min(1),
 });
 
-export function ChatInput({ apiUrl, query, name, type }: ChatInputProps) {
+export function ChatInput({ query, name, type }: ChatInputProps) {
   const { onOpen } = useModal();
 
   const router = useRouter();
+
+  const { getToken } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -41,12 +44,24 @@ export function ChatInput({ apiUrl, query, name, type }: ChatInputProps) {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const url = qs.stringifyUrl({
-        url: apiUrl,
-        query,
-      });
+      const token = await getToken({ template: 'acedia' });
 
-      await axios.post(url, values);
+      const client = createApolloClient(token);
+
+      const input: CreateMessageDto = {
+        channelId: query.channelId,
+        content: values.content,
+        fileUrl: null,
+        memberId: query.memberId,
+        serverId: query.serverId,
+      };
+
+      await client.mutate({
+        mutation: CREATE_MESSAGE,
+        variables: {
+          input,
+        },
+      });
 
       form.reset();
       router.refresh();
@@ -67,7 +82,7 @@ export function ChatInput({ apiUrl, query, name, type }: ChatInputProps) {
                 <div className="relative p-4 pb-6">
                   <button
                     type="button"
-                    onClick={() => onOpen('messageFile', { apiUrl, query })}
+                    onClick={() => onOpen('messageFile', { query })}
                     className="absolute top-7 left-8 h-[24px] w-[24px] bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300 transition rounded-full p-1 flex items-center justify-center"
                   >
                     <Plus className="text-white dark:text-[#313338]" />

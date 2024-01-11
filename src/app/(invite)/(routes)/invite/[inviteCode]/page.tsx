@@ -1,7 +1,11 @@
 import { auth, redirectToSignIn } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 
-import { Server } from '@/graphql/gql/graphql';
+import {
+  CreateMemberMutationVariables,
+  GetServerByInviteCodeQueryVariables,
+  Server,
+} from '@/graphql/gql/graphql';
 
 import { createApolloClient } from '@/lib/apollo-client';
 import { currentProfile } from '@/lib/current-profile';
@@ -27,26 +31,27 @@ export default async function InviteCodePage({ params }: InviteCodePageProps) {
 
   const client = createApolloClient(token);
 
+  const queryVariables: GetServerByInviteCodeQueryVariables = {
+    inviteCode: params.inviteCode,
+    profileId: profile.id,
+  };
+
   const { data: serverQueryData } = await client.query({
     query: GET_SERVER_BY_INVITE_CODE,
-    variables: {
-      inviteCode: params.inviteCode,
-      profileId: profile.id,
-    },
+    variables: queryVariables,
   });
 
   const existingServer: Server = serverQueryData?.serverByInviteCode;
 
   if (existingServer) return redirect(`/servers/${existingServer.id}`);
 
+  const mutationVariables: CreateMemberMutationVariables = {
+    inviteCode: params.inviteCode,
+  };
+
   const { data: serverMutationData } = await client.mutate({
     mutation: CREATE_MEMBER,
-    variables: {
-      input: {
-        inviteCode: params.inviteCode,
-        profileId: profile.id,
-      },
-    },
+    variables: mutationVariables,
   });
 
   const server: Server = serverMutationData?.createMember;

@@ -2,7 +2,7 @@ import { auth, redirectToSignIn } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
 
-import { Server } from '@/graphql/gql/graphql';
+import { GetServerByIdQueryVariables, Server } from '@/graphql/gql/graphql';
 
 import { createApolloClient } from '@/lib/apollo-client';
 import { currentProfile } from '@/lib/current-profile';
@@ -29,12 +29,14 @@ export default async function ServerIdLayoutasync({
 
   const client = createApolloClient(token);
 
+  const variables: GetServerByIdQueryVariables = {
+    id: params.serverId,
+    profileId: profile.id,
+  };
+
   const { data: serverQueryData } = await client.query({
     query: GET_SERVER_BY_ID,
-    variables: {
-      id: params.serverId,
-      profileId: profile.id,
-    },
+    variables,
   });
 
   const server: Server = serverQueryData?.getServerById;

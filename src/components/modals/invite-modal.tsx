@@ -4,7 +4,10 @@ import { useAuth } from '@clerk/nextjs';
 import { Check, Copy, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 
-import { Profile, Server } from '@/graphql/gql/graphql';
+import {
+  CreateInviteCodeMutationVariables,
+  Server,
+} from '@/graphql/gql/graphql';
 
 import { useModal } from '@/hooks/use-modal-store';
 import { useOrigin } from '@/hooks/use-origin';
@@ -21,7 +24,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 import { CREATE_INVITE_CODE } from '@/graphql/mutations/server/create-invite-code';
-import { GET_PROFILE_BY_USER_ID } from '@/graphql/queries/profile/get-profile-by-user-id';
 
 export function InviteModal() {
   const [isCopied, setIsCopied] = useState(false);
@@ -33,7 +35,7 @@ export function InviteModal() {
 
   const { server } = data;
 
-  const { userId, getToken } = useAuth();
+  const { getToken } = useAuth();
 
   const origin = useOrigin();
 
@@ -55,23 +57,13 @@ export function InviteModal() {
 
       const client = createApolloClient(token);
 
-      const { data: profileQueryData } = await client.query({
-        query: GET_PROFILE_BY_USER_ID,
-        variables: {
-          userId,
-        },
-      });
-
-      const profile: Profile = profileQueryData?.getProfileByUserId;
+      const variables: CreateInviteCodeMutationVariables = {
+        id: server?.id!,
+      };
 
       const { data: serverMutationData } = await client.mutate({
         mutation: CREATE_INVITE_CODE,
-        variables: {
-          input: {
-            profileId: profile.id,
-            serverId: server?.id,
-          },
-        },
+        variables,
       });
 
       const serverWithNewCode: Server = serverMutationData?.createInviteCode;

@@ -1,6 +1,9 @@
 import { auth } from '@clerk/nextjs';
 
-import { Profile } from '@/graphql/gql/graphql';
+import {
+  GetProfileByUserIdQueryVariables,
+  Profile,
+} from '@/graphql/gql/graphql';
 
 import { createApolloClient } from '@/lib/apollo-client';
 
@@ -15,9 +18,13 @@ export async function currentProfile(): Promise<Profile | null> {
 
   const client = createApolloClient(token);
 
+  const variables: GetProfileByUserIdQueryVariables = {
+    userId,
+  };
+
   const { data: profileQueryData } = await client.query({
     query: GET_PROFILE_BY_USER_ID,
-    variables: { userId },
+    variables,
   });
 
   const profile: Profile = profileQueryData?.getProfileByUserId;

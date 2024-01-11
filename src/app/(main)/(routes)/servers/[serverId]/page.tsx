@@ -1,7 +1,10 @@
 import { auth, redirectToSignIn } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 
-import { Server } from '@/graphql/gql/graphql';
+import {
+  GetServerWithChannelByIdQueryVariables,
+  Server,
+} from '@/graphql/gql/graphql';
 
 import { createApolloClient } from '@/lib/apollo-client';
 import { currentProfile } from '@/lib/current-profile';
@@ -25,12 +28,14 @@ export default async function ServerIdPage({ params }: ServerIdPageProps) {
 
   const client = createApolloClient(token);
 
+  const variables: GetServerWithChannelByIdQueryVariables = {
+    id: params.serverId,
+    profileId: profile.id,
+  };
+
   const { data: serverQueryData } = await client.query({
     query: GET_SERVER_WITH_CHANNEL_BY_ID,
-    variables: {
-      id: params.serverId,
-      profileId: profile.id,
-    },
+    variables,
   });
 
   const server: Server = serverQueryData?.getServerWithChannelById;

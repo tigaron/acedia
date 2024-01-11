@@ -1,9 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import qs from 'query-string';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -25,6 +23,10 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
+import { CreateMessageDto } from '@/graphql/gql/graphql';
+import { CREATE_MESSAGE } from '@/graphql/mutations/message/create-message';
+import { createApolloClient } from '@/lib/apollo-client';
+import { useAuth } from '@clerk/nextjs';
 
 const formSchema = z.object({
   fileUrl: z.string().url({
@@ -37,9 +39,11 @@ export function MessageFileModal() {
 
   const isModalOpen = isOpen && type === 'messageFile';
 
-  const { apiUrl, query } = data;
+  const { query } = data;
 
   const router = useRouter();
+
+  const { getToken } = useAuth();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -57,12 +61,22 @@ export function MessageFileModal() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const url = qs.stringifyUrl({
-        url: apiUrl || '',
-        query,
-      });
+      const token = await getToken({ template: 'acedia' });
 
-      await axios.post(url, { ...values, content: values.fileUrl });
+      const client = createApolloClient(token);
+
+      const input: CreateMessageDto = {
+        channelId: query?.channelId!,
+        memberId: query?.memberId!,
+        serverId: query?.serverId!,
+        ...values,
+        content: values.fileUrl,
+      };
+
+      await client.mutate({
+        mutation: CREATE_MESSAGE,
+        variables: { input },
+      });
 
       form.reset();
       router.refresh();

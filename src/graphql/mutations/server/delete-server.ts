@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const DELETE_SERVER = gql`
-  mutation deleteServer($input: DeleteServerDto!) {
-    deleteServer(input: $input) {
+  mutation deleteServer($id: String!) {
+    deleteServer(id: $id) {
       id
     }
   }

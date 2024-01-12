@@ -1,38 +1,51 @@
-import { GetBatchMessagesQueryVariables } from '@/graphql/gql/graphql';
+import {
+  GetBatchDMsQueryVariables,
+  GetBatchMessagesQueryVariables,
+} from '@/graphql/gql/graphql';
+import { GET_BATCH_DMS } from '@/graphql/queries/dm/get-batch-dms';
 import { GET_BATCH_MESSAGES } from '@/graphql/queries/message/get-batch-messages';
 import { createApolloClient } from '@/lib/apollo-client';
-import { useAuth } from '@clerk/nextjs';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
 interface ChatQueryProps {
   queryKey: string;
   paramKey: 'channelId' | 'conversationId';
   paramValue: string;
+  token: string;
 }
 
 export function useChatQuery({
   queryKey,
   paramKey,
   paramValue,
+  token,
 }: ChatQueryProps) {
-  const { getToken } = useAuth();
+  const client = createApolloClient(token);
 
   const fetchMessages = async ({ pageParam = undefined }) => {
-    const token = await getToken({ template: 'acedia' });
+    let variables: GetBatchMessagesQueryVariables | GetBatchDMsQueryVariables;
 
-    const client = createApolloClient(token);
-
-    const variables: GetBatchMessagesQueryVariables = {
-      cursor: pageParam,
-      channelId: paramValue,
-    };
+    if (paramKey === 'channelId') {
+      variables = {
+        cursor: pageParam,
+        [paramKey]: paramValue,
+      } as GetBatchMessagesQueryVariables;
+    } else {
+      variables = {
+        cursor: pageParam,
+        [paramKey]: paramValue,
+      } as GetBatchDMsQueryVariables;
+    }
 
     const { data: messageQueryData } = await client.query({
-      query: GET_BATCH_MESSAGES,
+      query: paramKey === 'channelId' ? GET_BATCH_MESSAGES : GET_BATCH_DMS,
       variables,
     });
 
-    const messages = messageQueryData?.getBatchMessages;
+    const messages =
+      paramKey === 'channelId'
+        ? messageQueryData?.getBatchMessages
+        : messageQueryData?.getBatchDMs;
 
     return messages;
   };
@@ -47,6 +60,7 @@ export function useChatQuery({
     });
 
   return {
+    // client,
     data,
     fetchNextPage,
     hasNextPage,

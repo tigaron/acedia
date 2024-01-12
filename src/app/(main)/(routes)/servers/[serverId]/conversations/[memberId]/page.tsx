@@ -13,6 +13,8 @@ import { currentProfile } from '@/lib/current-profile';
 
 import { ChatHeader } from '@/components/chat/chat-header';
 
+import { ChatInput } from '@/components/chat/chat-input';
+import { ChatMessages } from '@/components/chat/chat-messages';
 import { FETCH_CONVERSATION } from '@/graphql/queries/conversation/fetch-conversation';
 import { GET_MEMBER_BY_SERVER_ID } from '@/graphql/queries/member/get-member-by-server-id';
 
@@ -74,6 +76,22 @@ export default async function MemberIdPage({ params }: MemberIdPageProps) {
         name={otherMember.profile.name}
         imageUrl={otherMember.profile.imageUrl}
         type="conversation"
+      />
+      <ChatMessages
+        member={currentMember}
+        name={otherMember.profile.name}
+        chatId={conversation.id}
+        type="conversation"
+        paramKey="conversationId"
+        paramValue={conversation.id}
+        token={token as string}
+      />
+      <ChatInput
+        name={otherMember.profile.name}
+        type="conversation"
+        query={{
+          conversationId: conversation.id,
+        }}
       />
     </div>
   );

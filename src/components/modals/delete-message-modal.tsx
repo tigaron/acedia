@@ -13,7 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { DeleteMessageDto } from '@/graphql/gql/graphql';
+import { DeleteDmDto, DeleteMessageDto } from '@/graphql/gql/graphql';
+import { DELETE_DM } from '@/graphql/mutations/dm/delete-dm';
 import { DELETE_MESSAGE } from '@/graphql/mutations/message/delete-message';
 import { createApolloClient } from '@/lib/apollo-client';
 import { useAuth } from '@clerk/nextjs';
@@ -37,15 +38,24 @@ export function DeleteMessageModal() {
 
       const client = createApolloClient(token);
 
-      const input: DeleteMessageDto = {
-        channelId: query?.channelId!,
-        memberId: query?.memberId!,
-        messageId: query?.messageId!,
-        serverId: query?.serverId!,
-      };
+      let input: DeleteMessageDto | DeleteDmDto;
+
+      if (query?.paramKey === 'channelId') {
+        input = {
+          channelId: query?.paramValue!,
+          memberId: query?.memberId!,
+          messageId: query?.messageId!,
+          serverId: query?.serverId!,
+        };
+      } else {
+        input = {
+          conversationId: query?.paramValue!,
+          dmId: query?.messageId!,
+        };
+      }
 
       await client.mutate({
-        mutation: DELETE_MESSAGE,
+        mutation: query?.channelId ? DELETE_MESSAGE : DELETE_DM,
         variables: {
           input,
         },

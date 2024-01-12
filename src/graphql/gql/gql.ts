@@ -16,6 +16,9 @@ const documents = {
     "\n  mutation createChannel($input: CreateChannelDto!) {\n    createChannel(input: $input) {\n      id\n    }\n  }\n": types.CreateChannelDocument,
     "\n  mutation deleteChannel($input: DeleteChannelDto!) {\n    deleteChannel(input: $input) {\n      id\n    }\n  }\n": types.DeleteChannelDocument,
     "\n  mutation updateChannel($input: UpdateChannelDto!) {\n    updateChannel(input: $input) {\n      id\n    }\n  }\n": types.UpdateChannelDocument,
+    "\n  mutation createDM($input: CreateDMDto!) {\n    createDM(input: $input) {\n      id\n    }\n  }\n": types.CreateDmDocument,
+    "\n  mutation deleteDM($input: DeleteDMDto!) {\n    deleteDM(input: $input) {\n      id\n    }\n  }\n": types.DeleteDmDocument,
+    "\n  mutation updateDM($input: UpdateDMDto!) {\n    updateDM(input: $input) {\n      id\n    }\n  }\n": types.UpdateDmDocument,
     "\n  mutation createMember($inviteCode: String!) {\n    createMember(inviteCode: $inviteCode) {\n      id\n    }\n  }\n": types.CreateMemberDocument,
     "\n  mutation deleteMember($input: DeleteMemberDto!) {\n    deleteMember(input: $input) {\n      id\n      profileId\n      members {\n        id\n        role\n        profileId\n        profile {\n          name\n          email\n          imageUrl\n        }\n      }\n    }\n  }\n": types.DeleteMemberDocument,
     "\n  mutation updateMemberRole($input: UpdateMemberRoleDto!) {\n    updateMemberRole(input: $input) {\n      id\n      profileId\n      members {\n        id\n        role\n        profileId\n        profile {\n          name\n          email\n          imageUrl\n        }\n      }\n    }\n  }\n": types.UpdateMemberRoleDocument,
@@ -29,7 +32,8 @@ const documents = {
     "\n  mutation leaveServer($id: String!) {\n    leaveServer(id: $id) {\n      id\n    }\n  }\n": types.LeaveServerDocument,
     "\n  mutation updateServer($input: UpdateServerDto!) {\n    updateServer(input: $input) {\n      id\n    }\n  }\n": types.UpdateServerDocument,
     "\n  query getChannelById($id: String!) {\n    getChannelById(id: $id) {\n      id\n      name\n      type\n      serverId\n    }\n  }\n": types.GetChannelByIdDocument,
-    "\n  query fetchConversation($memberOneId: String!, $memberTwoId: String!) {\n    fetchConversation(memberOneId: $memberOneId, memberTwoId: $memberTwoId) {\n      memberOne {\n        profileId\n        profile {\n          name\n          imageUrl\n        }\n      }\n      memberTwo {\n        profileId\n        profile {\n          name\n          imageUrl\n        }\n      }\n    }\n  }\n": types.FetchConversationDocument,
+    "\n  query fetchConversation($memberOneId: String!, $memberTwoId: String!) {\n    fetchConversation(memberOneId: $memberOneId, memberTwoId: $memberTwoId) {\n      id\n      memberOne {\n        profileId\n        profile {\n          name\n          imageUrl\n        }\n      }\n      memberTwo {\n        profileId\n        profile {\n          name\n          imageUrl\n        }\n      }\n    }\n  }\n": types.FetchConversationDocument,
+    "\n  query getBatchDMs($conversationId: String!, $cursor: String) {\n    getBatchDMs(conversationId: $conversationId, cursor: $cursor) {\n      messages {\n        id\n        content\n        fileUrl\n        deleted\n        createdAt\n        updatedAt\n        member {\n          id\n          role\n          profile {\n            name\n            imageUrl\n          }\n        }\n      }\n      nextCursor\n    }\n  }\n": types.GetBatchDMsDocument,
     "\n  query getMemberByServerId($serverId: String!, $profileId: String!) {\n    getMemberByServerId(serverId: $serverId, profileId: $profileId) {\n      id\n      role\n    }\n  }\n": types.GetMemberByServerIdDocument,
     "\n  query getBatchMessages($channelId: String!, $cursor: String) {\n    getBatchMessages(channelId: $channelId, cursor: $cursor) {\n      messages {\n        id\n        content\n        fileUrl\n        deleted\n        createdAt\n        updatedAt\n        member {\n          id\n          role\n          profile {\n            name\n            imageUrl\n          }\n        }\n      }\n      nextCursor\n    }\n  }\n": types.GetBatchMessagesDocument,
     "\n  query getProfileByUserId($userId: String!) {\n    getProfileByUserId(userId: $userId) {\n      id\n    }\n  }\n": types.GetProfileByUserIdDocument,
@@ -70,6 +74,18 @@ export function graphql(source: "\n  mutation deleteChannel($input: DeleteChanne
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation updateChannel($input: UpdateChannelDto!) {\n    updateChannel(input: $input) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation updateChannel($input: UpdateChannelDto!) {\n    updateChannel(input: $input) {\n      id\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation createDM($input: CreateDMDto!) {\n    createDM(input: $input) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation createDM($input: CreateDMDto!) {\n    createDM(input: $input) {\n      id\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation deleteDM($input: DeleteDMDto!) {\n    deleteDM(input: $input) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation deleteDM($input: DeleteDMDto!) {\n    deleteDM(input: $input) {\n      id\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation updateDM($input: UpdateDMDto!) {\n    updateDM(input: $input) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation updateDM($input: UpdateDMDto!) {\n    updateDM(input: $input) {\n      id\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -125,7 +141,11 @@ export function graphql(source: "\n  query getChannelById($id: String!) {\n    g
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query fetchConversation($memberOneId: String!, $memberTwoId: String!) {\n    fetchConversation(memberOneId: $memberOneId, memberTwoId: $memberTwoId) {\n      memberOne {\n        profileId\n        profile {\n          name\n          imageUrl\n        }\n      }\n      memberTwo {\n        profileId\n        profile {\n          name\n          imageUrl\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query fetchConversation($memberOneId: String!, $memberTwoId: String!) {\n    fetchConversation(memberOneId: $memberOneId, memberTwoId: $memberTwoId) {\n      memberOne {\n        profileId\n        profile {\n          name\n          imageUrl\n        }\n      }\n      memberTwo {\n        profileId\n        profile {\n          name\n          imageUrl\n        }\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  query fetchConversation($memberOneId: String!, $memberTwoId: String!) {\n    fetchConversation(memberOneId: $memberOneId, memberTwoId: $memberTwoId) {\n      id\n      memberOne {\n        profileId\n        profile {\n          name\n          imageUrl\n        }\n      }\n      memberTwo {\n        profileId\n        profile {\n          name\n          imageUrl\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query fetchConversation($memberOneId: String!, $memberTwoId: String!) {\n    fetchConversation(memberOneId: $memberOneId, memberTwoId: $memberTwoId) {\n      id\n      memberOne {\n        profileId\n        profile {\n          name\n          imageUrl\n        }\n      }\n      memberTwo {\n        profileId\n        profile {\n          name\n          imageUrl\n        }\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query getBatchDMs($conversationId: String!, $cursor: String) {\n    getBatchDMs(conversationId: $conversationId, cursor: $cursor) {\n      messages {\n        id\n        content\n        fileUrl\n        deleted\n        createdAt\n        updatedAt\n        member {\n          id\n          role\n          profile {\n            name\n            imageUrl\n          }\n        }\n      }\n      nextCursor\n    }\n  }\n"): (typeof documents)["\n  query getBatchDMs($conversationId: String!, $cursor: String) {\n    getBatchDMs(conversationId: $conversationId, cursor: $cursor) {\n      messages {\n        id\n        content\n        fileUrl\n        deleted\n        createdAt\n        updatedAt\n        member {\n          id\n          role\n          profile {\n            name\n            imageUrl\n          }\n        }\n      }\n      nextCursor\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

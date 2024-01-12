@@ -11,6 +11,7 @@ import {
   Member,
   MemberRoleEnum,
   Profile,
+  UpdateDmDto,
   UpdateMessageDto,
 } from '@/graphql/gql/graphql';
 
@@ -22,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { UserAvatar } from '@/components/user-avatar';
+import { UPDATE_DM } from '@/graphql/mutations/dm/update-dm';
 import { UPDATE_MESSAGE } from '@/graphql/mutations/message/update-message';
 import { createApolloClient } from '@/lib/apollo-client';
 import { useAuth } from '@clerk/nextjs';
@@ -38,6 +40,8 @@ interface ChatItemProps {
   deleted: boolean;
   currentMember: Member;
   isUpdated: boolean;
+  paramKey: 'channelId' | 'conversationId';
+  paramValue: string;
 }
 
 const roleIconMap = {
@@ -61,6 +65,8 @@ export function ChatItem({
   deleted,
   currentMember,
   isUpdated,
+  paramKey,
+  paramValue,
 }: ChatItemProps) {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -103,16 +109,26 @@ export function ChatItem({
 
       const client = createApolloClient(token);
 
-      const input: UpdateMessageDto = {
-        channelId: params?.channelId as string,
-        content: values.content,
-        memberId: currentMember.id,
-        messageId: id,
-        serverId: params?.serverId as string,
-      };
+      let input: UpdateMessageDto | UpdateDmDto;
+
+      if (paramKey === 'channelId') {
+        input = {
+          [paramKey]: paramValue,
+          content: values.content,
+          memberId: currentMember.id,
+          messageId: id,
+          serverId: params?.serverId as string,
+        } as UpdateMessageDto;
+      } else {
+        input = {
+          [paramKey]: paramValue,
+          content: values.content,
+          dmId: id,
+        } as UpdateDmDto;
+      }
 
       await client.mutate({
-        mutation: UPDATE_MESSAGE,
+        mutation: params?.channelId ? UPDATE_MESSAGE : UPDATE_DM,
         variables: {
           input,
         },
@@ -265,7 +281,8 @@ export function ChatItem({
               onClick={() =>
                 onOpen('deleteMessage', {
                   query: {
-                    channelId: params?.channelId,
+                    paramKey,
+                    paramValue,
                     messageId: id,
                     serverId: params?.serverId,
                     memberId: currentMember.id,

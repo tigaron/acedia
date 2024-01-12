@@ -11,31 +11,16 @@ loadErrorMessages();
 
 export const createApolloClient = (token: string | null, useWS = false) => {
   const httpLink = new HttpLink({
-    uri: process.env.NEXT_PUBLIC_GRAPHQL_API_URL,
+    uri: process.env.NEXT_PUBLIC_GRAPHQL_API_URL as string,
   });
 
   const wsLink = () => {
     return new GraphQLWsLink(
       createClient({
         url: process.env.NEXT_PUBLIC_GRAPHQL_WS_URL as string,
-        connectionParams: {
-          authToken: token,
-        },
       }),
     );
   };
-
-  /*   const splitLink = split(
-    ({ query }) => {
-      const definition = getMainDefinition(query);
-      return (
-        definition.kind === 'OperationDefinition' &&
-        definition.operation === 'subscription'
-      );
-    },
-    wsLink,
-    httpLink,
-  ); */
 
   const authLink = setContext((_, { headers }) => {
     return {
@@ -60,11 +45,30 @@ export const createApolloClient = (token: string | null, useWS = false) => {
     if (networkError) console.log(`[Network error]: ${networkError}`);
   });
 
+  const cache = new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          getBatchMessages: {
+            merge(existing, incoming) {
+              return incoming;
+            },
+          },
+          getBatchDMs: {
+            merge(existing, incoming) {
+              return incoming;
+            },
+          },
+        },
+      },
+    },
+  });
+
   return new ApolloClient({
     ssrMode: typeof window === 'undefined',
     link: useWS
       ? from([authLink, errorLink, wsLink()])
       : from([authLink, errorLink, httpLink]),
-    cache: new InMemoryCache(),
+    cache,
   });
 };

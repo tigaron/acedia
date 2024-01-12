@@ -74,6 +74,7 @@ export default async function ChannelIdPage({ params }: ChannelIdPageProps) {
         member={member}
         name={channel.name}
         chatId={channel.id}
+        token={token as string}
         type="channel"
         paramKey="channelId"
         paramValue={channel.id}

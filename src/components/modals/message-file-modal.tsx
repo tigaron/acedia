@@ -23,7 +23,8 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
-import { CreateMessageDto } from '@/graphql/gql/graphql';
+import { CreateDmDto, CreateMessageDto } from '@/graphql/gql/graphql';
+import { CREATE_DM } from '@/graphql/mutations/dm/create-dm';
 import { CREATE_MESSAGE } from '@/graphql/mutations/message/create-message';
 import { createApolloClient } from '@/lib/apollo-client';
 import { useAuth } from '@clerk/nextjs';
@@ -65,16 +66,26 @@ export function MessageFileModal() {
 
       const client = createApolloClient(token);
 
-      const input: CreateMessageDto = {
-        channelId: query?.channelId!,
-        memberId: query?.memberId!,
-        serverId: query?.serverId!,
-        ...values,
-        content: values.fileUrl,
-      };
+      let input: CreateMessageDto | CreateDmDto;
+
+      if (query?.channelId) {
+        input = {
+          channelId: query?.channelId!,
+          memberId: query?.memberId!,
+          serverId: query?.serverId!,
+          ...values,
+          content: values.fileUrl,
+        };
+      } else {
+        input = {
+          conversationId: query?.conversationId!,
+          ...values,
+          content: values.fileUrl,
+        };
+      }
 
       await client.mutate({
-        mutation: CREATE_MESSAGE,
+        mutation: query?.channelId ? CREATE_MESSAGE : CREATE_DM,
         variables: { input },
       });
 

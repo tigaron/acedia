@@ -10,7 +10,8 @@ import { useModal } from '@/hooks/use-modal-store';
 import { EmojiPicker } from '@/components/emoji-picker';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { CreateMessageDto } from '@/graphql/gql/graphql';
+import { CreateDmDto, CreateMessageDto } from '@/graphql/gql/graphql';
+import { CREATE_DM } from '@/graphql/mutations/dm/create-dm';
 import { CREATE_MESSAGE } from '@/graphql/mutations/message/create-message';
 import { createApolloClient } from '@/lib/apollo-client';
 import { useAuth } from '@clerk/nextjs';
@@ -48,16 +49,26 @@ export function ChatInput({ query, name, type }: ChatInputProps) {
 
       const client = createApolloClient(token);
 
-      const input: CreateMessageDto = {
-        channelId: query.channelId,
-        content: values.content,
-        fileUrl: null,
-        memberId: query.memberId,
-        serverId: query.serverId,
-      };
+      let input: CreateMessageDto | CreateDmDto;
+
+      if (type === 'channel') {
+        input = {
+          channelId: query.channelId,
+          content: values.content,
+          fileUrl: null,
+          memberId: query.memberId,
+          serverId: query.serverId,
+        } as CreateMessageDto;
+      } else {
+        input = {
+          conversationId: query.conversationId,
+          content: values.content,
+          fileUrl: null,
+        } as CreateDmDto;
+      }
 
       await client.mutate({
-        mutation: CREATE_MESSAGE,
+        mutation: type === 'channel' ? CREATE_MESSAGE : CREATE_DM,
         variables: {
           input,
         },

@@ -1,10 +1,9 @@
-import { useAuth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 
 import { db } from '@/lib/db';
 
 export async function currentProfile() {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { userId } = useAuth();
+  const { userId } = auth();
 
   if (!userId) return null;
 

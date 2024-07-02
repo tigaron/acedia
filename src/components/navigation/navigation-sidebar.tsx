@@ -1,4 +1,5 @@
-import { RedirectToSignIn, UserButton } from '@clerk/nextjs';
+import { UserButton } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 
 import { currentProfile } from '@/lib/current-profile';
 import { db } from '@/lib/db';
@@ -12,7 +13,7 @@ import { Separator } from '@/components/ui/separator';
 export async function NavigationSidebar() {
   const profile = await currentProfile();
 
-  if (!profile) return RedirectToSignIn();
+  if (!profile) return auth().redirectToSignIn();
 
   const servers = await db.server.findMany({
     where: {

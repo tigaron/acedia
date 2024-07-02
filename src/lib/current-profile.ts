@@ -1,9 +1,9 @@
-import { auth } from '@clerk/nextjs';
+import { useAuth } from '@clerk/nextjs';
 
 import { db } from '@/lib/db';
 
 export async function currentProfile() {
-  const { userId } = auth();
+  const { userId } = useAuth();
 
   if (!userId) return null;
 

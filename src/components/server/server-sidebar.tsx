@@ -1,4 +1,4 @@
-import { RedirectToSignIn } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { Hash, Mic, ShieldAlert, ShieldCheck, Video } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
@@ -36,7 +36,7 @@ const roleIconMap = {
 export async function ServerSidebar({ serverId }: ServerSidebarProps) {
   const profile = await currentProfile();
 
-  if (!profile) return RedirectToSignIn();
+  if (!profile) return auth().redirectToSignIn();
 
   const server = await db.server.findUnique({
     where: {

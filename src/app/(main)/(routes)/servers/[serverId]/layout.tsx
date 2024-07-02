@@ -1,4 +1,4 @@
-import { RedirectToSignIn } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
 
@@ -17,7 +17,9 @@ export default async function ServerIdLayoutasync({
   const profile = await currentProfile();
 
   if (!profile)
-    return RedirectToSignIn({ returnBackUrl: `/servers/${params.serverId}` });
+    return auth().redirectToSignIn({
+      returnBackUrl: `/servers/${params.serverId}`,
+    });
 
   const server = await db.server.findUnique({
     where: {

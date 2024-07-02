@@ -1,4 +1,4 @@
-import { redirectToSignIn } from '@clerk/nextjs';
+import { RedirectToSignIn } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 
 import { ChatHeader } from '@/components/chat/chat-header';
@@ -16,7 +16,7 @@ interface MemberIdPageProps {
 export default async function MemberIdPage({ params }: MemberIdPageProps) {
   const profile = await currentProfile();
 
-  if (!profile) return redirectToSignIn();
+  if (!profile) return RedirectToSignIn();
 
   const currentMember = await db.member.findFirst({
     where: {

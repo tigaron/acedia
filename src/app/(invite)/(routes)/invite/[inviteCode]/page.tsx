@@ -1,8 +1,8 @@
-import { redirectToSignIn } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 
 import { currentProfile } from '@/lib/current-profile';
 import { db } from '@/lib/db';
+import { RedirectToSignIn } from '@clerk/nextjs';
 
 interface InviteCodePageProps {
   params: { inviteCode: string };
@@ -12,7 +12,7 @@ export default async function InviteCodePage({ params }: InviteCodePageProps) {
   const profile = await currentProfile();
 
   if (!profile)
-    return redirectToSignIn({ returnBackUrl: `/invite/${params.inviteCode}` });
+    return RedirectToSignIn({ signInForceRedirectUrl: `/invite/${params.inviteCode}` });
 
   if (!params.inviteCode) return redirect('/');
 
